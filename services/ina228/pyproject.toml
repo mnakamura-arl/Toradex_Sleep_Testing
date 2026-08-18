@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ina228"
+version = "0.0.0"
+description = "INA228"
+authors = ["ARL-at-UH <arl-it@arl.hawaii.edu>"]
+readme = "README.md"
+packages = [
+    { include = "ina228", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+smbus2 = "^0.5.0"
+psycopg2-binary = "^2.9.10"
+structlog = "^25.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

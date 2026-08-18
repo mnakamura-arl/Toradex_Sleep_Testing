@@ -1,0 +1,73 @@
+# Minimal sleep-test stack: INA228 power/energy monitor logging to Postgres.
+# Database credential secrets live in the 'secrets' folder in this directory.
+# General environment variables can be modified in 'config.env'.
+# Sensor-specific environment variables live under each service's "environment" attribute.
+#
+# Trimmed from METOC_BUOY compose.yaml: no gpsd-chrony, loki, or fluent-bit —
+# the point of a sleep test is a minimal, low-draw stack. Container logs use
+# the local json-file driver with rotation instead of fluentd.
+
+name: sleep_test
+
+x-sensor-base: &sensor-base
+  restart: unless-stopped
+  env_file:
+    - path: config.env
+      required: false
+  secrets:
+    - db_user
+    - db_password
+  depends_on:
+    postgres:
+      condition: service_healthy
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    ports:
+      - "5432:5432"   # exposed so you can query results from the host / GCS
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    env_file:
+      - path: config.env
+        required: false
+    environment:
+      POSTGRES_DB: data
+      POSTGRES_USER_FILE: /run/secrets/db_user
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U `cat $$POSTGRES_USER_FILE`"]
+      interval: 10s
+      retries: 3
+      start_period: 5s
+      timeout: 10s
+    secrets:
+      - db_user
+      - db_password
+
+  ina228:
+    <<: *sensor-base
+    build: ./services/ina228
+    devices:
+      - /dev/i2c-3
+    environment:
+      DEVICE_INSTANCE: 1
+      DEVICE_PORT: /dev/i2c-3
+      DEVICE_ADDRESS: "0x41"    # A0 strapped high
+      DEVICE_DESCRIPTION: Power
+      DEVICE_LOCATION: Stack
+
+secrets:
+  db_user:
+    file: secrets/db_user.txt
+  db_password:
+    file: secrets/db_password.txt
+
+volumes:
+  postgres_data:

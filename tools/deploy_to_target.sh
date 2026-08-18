@@ -27,6 +27,7 @@ rsync -av --delete \
     --exclude 'secrets' \
     --exclude 'config.env' \
     --exclude 'logs' \
+    --exclude 'results-*.tgz' \
     ./ "$DEST:$RDIR/"
 
 # First deploy: seed secrets and config.env without clobbering existing ones

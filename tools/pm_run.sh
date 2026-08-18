@@ -6,38 +6,54 @@
 # stamped here, by the same clock that timestamps the ina228_data rows —
 # per-phase power/energy then falls out of a single SQL join.
 #
-# Usage:
-#   ./tools/pm_run.sh init
-#       Create the pm_phases table (idempotent).
-#
-#   ./tools/pm_run.sh push torizon@<dut-ip>
-#       Copy scripts/ to the DUT's ~/sleep_test/scripts (excludes Windows
-#       Zone.Identifier droppings, sets exec bits).
-#
-#   ./tools/pm_run.sh run torizon@<dut-ip> LABEL 'REMOTE COMMAND'
-#       Insert a start marker, run the command on the DUT over ssh, close the
-#       marker with the exit code. Example:
-#         ./tools/pm_run.sh run torizon@10.0.0.2 suspend-60s \
-#             'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
-#
-#   ./tools/pm_run.sh baseline LABEL SECONDS
-#       Marker-wrapped idle hold with no DUT command — e.g. measure the DUT
-#       sitting at idle, or powered off, for SECONDS.
-#
-#   ./tools/pm_run.sh report [RUN_ID]
-#       Per-phase results: duration, sample count, avg/min/max power from
-#       samples, and true average from the INA228 energy accumulator.
-#
-#   ./tools/pm_run.sh watch [WINDOW_S]
-#       Live readout (for 04-ab-matrix.sh prompts): rolling average power
-#       over the last WINDOW_S seconds (default 10), refreshed every 2 s.
+# Everything is logged under logs/<RUN_ID>/ :
+#   orchestrator.log        every pm_run.sh action, timestamped
+#   phase-<id>-<label>.log  full stdout+stderr of each remote command
+#   errors.log              one entry per failed phase (exit code + log tail)
+# 'collect' bundles those plus the DUT-side /var/log/pmtest, the DB tables,
+# and the service logs into results-<RUN_ID>.tgz for transfer back.
 #
 # Phases are grouped by RUN_ID: $PM_RUN_ID if set, else today's date.
+# See RUNBOOK.md for the full test sequence.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 [ -f compose.yaml ] || { echo "ERROR: run from the sleep_test root"; exit 1; }
 
 RUN_ID="${PM_RUN_ID:-$(date '+%Y%m%d')}"
+LOGDIR="logs/$RUN_ID"
+mkdir -p "$LOGDIR"
+
+usage() {
+    cat <<'EOF'
+usage: ./tools/pm_run.sh <command> [args]
+
+  init                              create the pm_phases marker table (idempotent)
+  push  user@dut                    copy scripts/ to the DUT ~/sleep_test/scripts
+  run   user@dut LABEL 'REMOTE CMD' marker-wrapped ssh command, output logged
+  baseline LABEL SECONDS            marker-wrapped hold, no DUT command
+  report [RUN_ID]                   per-phase power/energy table
+  watch [WINDOW_S]                  live rolling power readout (default 10 s)
+  collect [user@dut] [RUN_ID]       bundle all logs + data -> results-<RUN_ID>.tgz
+
+Phases group under $PM_RUN_ID (default: today's date). Example:
+  export PM_RUN_ID=$(date +%Y%m%d-%H%M)
+  ./tools/pm_run.sh run torizon@10.0.0.2 suspend-60 \
+      'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
+EOF
+    exit 1
+}
+
+olog() {  # timestamped line to console and orchestrator.log
+    printf '%s  %s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*" | tee -a "$LOGDIR/orchestrator.log"
+}
+
+err_note() {  # err_note PHASE_ID LABEL RC PHASE_LOG - record a failure
+    {
+        echo "=== $(date '+%Y-%m-%dT%H:%M:%S')  phase $1 ($2) exit=$3"
+        [ -f "$4" ] && tail -n 20 "$4" | sed 's/^/    /'
+    } >> "$LOGDIR/errors.log"
+    olog "!! phase $1 ($2) FAILED exit=$3 - see $LOGDIR/errors.log"
+}
 
 psql_exec() {
     docker compose exec -T postgres psql -v ON_ERROR_STOP=1 \
@@ -58,58 +74,8 @@ phase_close() {  # phase_close ID EXIT_CODE
     psql_exec -q -c "UPDATE pm_phases SET ended_at = now(), exit_code = $2 WHERE id = $1;"
 }
 
-cmd="${1:-}"; shift 2>/dev/null || true
-case "$cmd" in
-
-init)
-    psql_exec -c "CREATE TABLE IF NOT EXISTS pm_phases (
-        id SERIAL PRIMARY KEY,
-        run_id TEXT NOT NULL,
-        label TEXT NOT NULL,
-        command TEXT,
-        started_at TIMESTAMPTZ NOT NULL,
-        ended_at TIMESTAMPTZ,
-        exit_code INT
-    );"
-    echo "pm_phases ready"
-    ;;
-
-push)
-    DEST="${1:?usage: pm_run.sh push user@dut-ip}"
-    ssh "$DEST" 'mkdir -p sleep_test/scripts'
-    rsync -av --exclude '*Zone.Identifier*' scripts/ "$DEST:sleep_test/scripts/"
-    ssh "$DEST" 'chmod +x sleep_test/scripts/*.sh'
-    echo "scripts pushed to $DEST:sleep_test/scripts"
-    ;;
-
-run)
-    DEST="${1:?usage: pm_run.sh run user@dut-ip LABEL 'REMOTE COMMAND'}"
-    LABEL="${2:?missing LABEL}"
-    REMOTE="${3:?missing remote command}"
-    id=$(phase_open "$LABEL" "$REMOTE")
-    echo "== [$RUN_ID/$id] $LABEL: $REMOTE"
-    set +e
-    ssh "$DEST" "$REMOTE"
-    rc=$?
-    set -e
-    phase_close "$id" "$rc"
-    echo "== [$RUN_ID/$id] $LABEL done (exit $rc)"
-    [ "$rc" -eq 0 ] || echo "   NOTE: non-zero exit recorded; phase kept for the report"
-    ;;
-
-baseline)
-    LABEL="${1:?usage: pm_run.sh baseline LABEL SECONDS}"
-    SECS="${2:?missing SECONDS}"
-    id=$(phase_open "$LABEL" "hold ${SECS}s")
-    echo "== [$RUN_ID/$id] $LABEL: holding ${SECS}s"
-    sleep "$SECS"
-    phase_close "$id" 0
-    echo "== [$RUN_ID/$id] $LABEL done"
-    ;;
-
-report)
-    RID="${1:-$RUN_ID}"
-    psql_exec -c "
+report_sql() {  # report_sql RUN_ID -> the per-phase results query
+    cat <<EOF
         SELECT p.id,
                p.label,
                to_char(p.started_at, 'MM-DD HH24:MI:SS')                       AS start,
@@ -130,9 +96,70 @@ report)
         FROM pm_phases p
         LEFT JOIN ina228_data d
                ON d.timestamp BETWEEN p.started_at AND COALESCE(p.ended_at, now())
-        WHERE p.run_id = '$(sql_quote "$RID")'
+        WHERE p.run_id = '$(sql_quote "$1")'
         GROUP BY p.id, p.label, p.started_at, p.ended_at, p.exit_code
-        ORDER BY p.started_at;"
+        ORDER BY p.started_at
+EOF
+}
+
+cmd="${1:-}"; shift 2>/dev/null || true
+case "$cmd" in
+
+init)
+    psql_exec -c "CREATE TABLE IF NOT EXISTS pm_phases (
+        id SERIAL PRIMARY KEY,
+        run_id TEXT NOT NULL,
+        label TEXT NOT NULL,
+        command TEXT,
+        started_at TIMESTAMPTZ NOT NULL,
+        ended_at TIMESTAMPTZ,
+        exit_code INT
+    );" | tee -a "$LOGDIR/orchestrator.log"
+    olog "init: pm_phases ready"
+    ;;
+
+push)
+    DEST="${1:?usage: pm_run.sh push user@dut-ip}"
+    {
+        ssh "$DEST" 'mkdir -p sleep_test/scripts'
+        rsync -av --exclude '*Zone.Identifier*' scripts/ "$DEST:sleep_test/scripts/"
+        ssh "$DEST" 'chmod +x sleep_test/scripts/*.sh'
+    } 2>&1 | tee -a "$LOGDIR/orchestrator.log"
+    olog "push: scripts pushed to $DEST:sleep_test/scripts"
+    ;;
+
+run)
+    DEST="${1:?usage: pm_run.sh run user@dut-ip LABEL 'REMOTE COMMAND'}"
+    LABEL="${2:?missing LABEL}"
+    REMOTE="${3:?missing remote command}"
+    id=$(phase_open "$LABEL" "$REMOTE")
+    PLOG="$LOGDIR/phase-$id-$LABEL.log"
+    olog "run [$RUN_ID/$id] $LABEL: $REMOTE"
+    set +e
+    ssh "$DEST" "$REMOTE" 2>&1 | tee "$PLOG"
+    rc=${PIPESTATUS[0]}
+    set -e
+    phase_close "$id" "$rc"
+    if [ "$rc" -eq 0 ]; then
+        olog "run [$RUN_ID/$id] $LABEL done (exit 0), log: $PLOG"
+    else
+        err_note "$id" "$LABEL" "$rc" "$PLOG"
+    fi
+    ;;
+
+baseline)
+    LABEL="${1:?usage: pm_run.sh baseline LABEL SECONDS}"
+    SECS="${2:?missing SECONDS}"
+    id=$(phase_open "$LABEL" "hold ${SECS}s")
+    olog "baseline [$RUN_ID/$id] $LABEL: holding ${SECS}s"
+    sleep "$SECS"
+    phase_close "$id" 0
+    olog "baseline [$RUN_ID/$id] $LABEL done"
+    ;;
+
+report)
+    RID="${1:-$RUN_ID}"
+    psql_exec -c "$(report_sql "$RID");"
     echo "run_id: $RID   (true_avg_mw comes from the INA228 energy accumulator;"
     echo "a negative energy_j means the ina228 service restarted mid-phase)"
     ;;
@@ -153,8 +180,63 @@ watch)
     done
     ;;
 
+collect)
+    DEST=""
+    RID="$RUN_ID"
+    for a in "$@"; do
+        case "$a" in *@*) DEST="$a" ;; *) RID="$a" ;; esac
+    done
+    CDIR="logs/$RID"
+    mkdir -p "$CDIR"
+    olog "collect: gathering results for run $RID"
+
+    # 1. Database: per-phase report, raw markers, raw samples for the run window
+    psql_exec -c "COPY ($(report_sql "$RID")) TO STDOUT WITH CSV HEADER" \
+        > "$CDIR/report.csv" \
+        || olog "!! collect: report export failed (is the stack up?)"
+    psql_exec -c "COPY (SELECT * FROM pm_phases WHERE run_id = '$(sql_quote "$RID")'
+        ORDER BY started_at) TO STDOUT WITH CSV HEADER" \
+        > "$CDIR/pm_phases.csv" || true
+    psql_exec -c "COPY (SELECT d.* FROM ina228_data d WHERE d.timestamp BETWEEN
+          (SELECT min(started_at) - interval '60 seconds' FROM pm_phases
+             WHERE run_id = '$(sql_quote "$RID")')
+          AND
+          (SELECT max(COALESCE(ended_at, now())) + interval '60 seconds' FROM pm_phases
+             WHERE run_id = '$(sql_quote "$RID")')
+        ORDER BY d.timestamp) TO STDOUT WITH CSV HEADER" \
+        > "$CDIR/ina228_samples.csv" || true
+
+    # 2. Monitor-side service logs (crashes, I2C errors, DB write failures)
+    docker compose logs --no-color --timestamps ina228 > "$CDIR/ina228-service.log" 2>&1 || true
+    docker compose logs --no-color --timestamps postgres | tail -n 200 \
+        > "$CDIR/postgres-service.log" 2>&1 || true
+
+    # 3. DUT-side logs: /var/log/pmtest (CSVs, soak logs) and /var/lib/pmtest
+    #    (poweroff-wake results recorded at next boot). Owned by root, so tar
+    #    runs under sudo -n; falls back to plain tar for permissive images.
+    if [ -n "$DEST" ]; then
+        if ssh "$DEST" 'sudo -n tar -C /var -cz log/pmtest lib/pmtest 2>/dev/null || tar -C /var -cz log/pmtest lib/pmtest 2>/dev/null' \
+                > "$CDIR/dut-pmtest.tgz" 2>>"$LOGDIR/orchestrator.log" \
+                && [ -s "$CDIR/dut-pmtest.tgz" ]; then
+            olog "collect: DUT logs fetched"
+        else
+            rm -f "$CDIR/dut-pmtest.tgz"
+            olog "!! collect: could not fetch DUT /var/log/pmtest (check ssh + passwordless sudo)"
+        fi
+    else
+        olog "collect: no user@dut given - skipping DUT-side logs"
+    fi
+
+    # 4. Bundle
+    OUT="results-$RID.tgz"
+    tar -C logs -czf "$OUT" "$RID"
+    olog "collect: wrote $OUT"
+    echo ""
+    echo "Transfer back with:"
+    echo "  scp $(whoami)@<monitor-ip>:$(pwd)/$OUT ."
+    ;;
+
 *)
-    sed -n '2,36p' "$0" | sed 's/^# \{0,1\}//'
-    exit 1
+    usage
     ;;
 esac

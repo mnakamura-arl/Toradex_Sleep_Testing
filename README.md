@@ -10,6 +10,7 @@ the stack itself adds as little load as possible during a sleep test.
 ## Layout
 
 ```
+RUNBOOK.md          step-by-step campaign guide - START HERE for a test
 compose.yaml        postgres + ina228 (METOC_BUOY-style, trimmed)
 config.env          SYSTEM_ID, UPDATE_PERIOD_MS, LOGGING_LEVEL, DB vars
 secrets/            db_user.txt, db_password.txt  <-- placeholders, change them
@@ -23,10 +24,11 @@ tools/
 
 ## Two-stack test topology
 
-Two Toradex stacks: the **DUT** (Verdin + peripherals) runs the `scripts/`
-sleep tests; the **monitor** runs this compose stack and measures the DUT.
-The INA228 shunt goes in series with the DUT's input supply (high side),
-grounds common, I2C to the monitor's `/dev/i2c-3` at `0x41`.
+Two Toradex stacks: the **DUT** (Verdin + peripherals, `192.168.1.212`) runs
+the `scripts/` sleep tests; the **monitor** (`192.168.1.213`) runs this
+compose stack and measures the DUT. The INA228 shunt goes in series with the
+DUT's input supply (high side), grounds common, I2C to the monitor's
+`/dev/i2c-3` at `0x41`.
 
 All phase boundaries are stamped by the monitor's clock (`tools/pm_run.sh`
 inserts markers into postgres around each ssh'd test command), because the
@@ -34,51 +36,29 @@ DUT's clock drifts or stops during suspend. Per-phase averages come from the
 1 Hz samples AND from the INA228 energy accumulator (`true_avg_mw`), which
 integrates at ADC rate and therefore catches resume inrush between samples.
 
-## Running a campaign (from the monitor stack)
+## Running a campaign
+
+**See RUNBOOK.md** — pre-flight checks, the full measurement sequence, and
+troubleshooting. Short version, on the monitor:
 
 ```bash
 cd ~/sleep_test
-DUT=torizon@<dut-ip>
-
-./tools/pm_run.sh init          # create the pm_phases marker table (once)
-./tools/pm_run.sh push $DUT     # copy scripts/ to the DUT
-
-export PM_RUN_ID=$(date +%Y%m%d-%H%M)   # group this campaign's phases
-
-# Baseline first: DUT idle, nothing running
-./tools/pm_run.sh baseline idle-baseline 120
-
-# Then the suggested script order, each wrapped in markers:
-./tools/pm_run.sh run $DUT probe        'cd sleep_test/scripts && sudo ./01-probe.sh'
-./tools/pm_run.sh run $DUT suspend-60   'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
-./tools/pm_run.sh run $DUT suspend-torn 'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 120 -n 3 -e -U'
-./tools/pm_run.sh run $DUT tuned-apply  'cd sleep_test/scripts && sudo ./05-runtime-tune.sh apply'
-./tools/pm_run.sh baseline tuned-idle 120
-./tools/pm_run.sh run $DUT tuned-revert 'cd sleep_test/scripts && sudo ./05-runtime-tune.sh revert'
-# poweroff-wake: the DUT drops off ssh — wrap the whole off window as a baseline
-./tools/pm_run.sh run $DUT poweroff-arm 'cd sleep_test/scripts && sudo ./03-poweroff-wake.sh arm 300' || true
-./tools/pm_run.sh baseline powered-off 300
-
-./tools/pm_run.sh report        # per-phase avg/min/max + accumulator truth
+export PM_RUN_ID=$(date +%Y%m%d-%H%M)
+./tools/pm_run.sh init && ./tools/pm_run.sh push torizon@192.168.1.212
+./tools/pm_run.sh run torizon@192.168.1.212 suspend-60 \
+    'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
+./tools/pm_run.sh report
+./tools/pm_run.sh collect torizon@192.168.1.212   # -> results-<RUN_ID>.tgz
 ```
 
-For `04-ab-matrix.sh` (which prompts you to type meter readings in mW), run
-`./tools/pm_run.sh watch` in a second terminal on the monitor and read the
-rolling average off the screen.
+Everything is logged under `logs/<RUN_ID>/` (orchestrator log, full remote
+output per phase, `errors.log` on failures); `collect` bundles those plus the
+DB exports and the DUT's `/var/log/pmtest` into `results-<RUN_ID>.tgz` to
+transfer back.
 
-The soak goes the same way overnight:
-
-```bash
-./tools/pm_run.sh run $DUT soak 'cd sleep_test/scripts && sudo ./06-soak.sh -n 300 -d 120 -a 15'
-```
-
-Notes:
-- `report` shows `true_avg_mw` from the energy register; a negative
-  `energy_j` means the ina228 service restarted mid-phase (accumulator
-  reset) — trust `avg_mw` for that row.
-- If the stack ran before the energy column existed, recreate the table:
-  `docker compose exec postgres psql -U "$(cat secrets/db_user.txt)" -d data
-  -c 'DROP TABLE ina228_data;'` then restart the ina228 service.
+Note: if the stack ran before the energy column existed, recreate the table:
+`docker compose exec postgres psql -U "$(cat secrets/db_user.txt)" -d data
+-c 'DROP TABLE ina228_data;'` then restart the ina228 service.
 
 ## Getting it onto the target
 

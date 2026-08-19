@@ -65,7 +65,7 @@ sql_quote() {  # escape single quotes for SQL literals
 }
 
 phase_open() {  # phase_open LABEL COMMAND -> prints phase id
-    psql_exec -tA -c "INSERT INTO pm_phases (run_id, label, command, started_at)
+    psql_exec -q -tA -c "INSERT INTO pm_phases (run_id, label, command, started_at)
         VALUES ('$(sql_quote "$RUN_ID")', '$(sql_quote "$1")', '$(sql_quote "$2")', now())
         RETURNING id;"
 }

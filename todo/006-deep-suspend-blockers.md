@@ -26,6 +26,27 @@ diagnostics; lt8912 unbound throughout):
 
 The LT8912B (todo/002) turned out to be resume-noise, not the entry abort.
 
+## Bench session 2026-08-20 (run `20260820-bench`) — BREAKTHROUGH
+
+- Phase 34/35: mic unplugged; xhci gone from the picture, mwifiex still
+  aborts entry (hs_activate). Its pass in 2036/24 was luck, not config.
+- Phase 36: `ip link set down` on mlan0/uap0 does NOT fix hs_activate.
+- Phase 37: `-w` with mic unplugged → **reboot #3**. Confirms
+  `rmmod mwifiex_sdio` + deep entry = instant reset, independent of USB.
+  INA data shows ≲1 s at the deep floor before reset (phases 31: 25 mW for
+  ~1 s; 37: reset too fast for 1 Hz). Likely regulator/PMIC mis-sequencing —
+  note the `_regulator_put` refcount WARNs from the suspend process.
+- **Phase 38 (fresh post-boot mwifiex firmware, driver LOADED, mic
+  unplugged, lt8912 unbound, plain `-d 60`): PASS.** `resumed after 60s
+  (drift 0s)`, kernel-confirmed entry, exit 0. Deep floor ≈ **74 mW** at the
+  DUT input rail (min_mw 73.7; true_avg 504.5 mW over the 83 s marker window
+  including awake overhead).
+
+**Working recipe:** leave mwifiex loaded (fresh firmware state — a reboot or
+possibly a module reload resets it), mic unplugged/gated, lt8912 unbound,
+`echo mem` plain deep. NEVER rmmod mwifiex before deep.
+5-cycle reliability test in flight (phase 39).
+
 ## Next steps (bench work — needs physical access)
 
 Tried 2026-08-20 and ruled out: s2idle `-w` (same xhci abort, phase 32);

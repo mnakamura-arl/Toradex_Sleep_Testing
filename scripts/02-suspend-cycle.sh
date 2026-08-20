@@ -168,7 +168,8 @@ while [ "$i" -le "$COUNT" ]; do
 	info "entering $MODE ..."
 	sync
 
-	if ! echo mem > /sys/power/state 2>/tmp/pm_err; then
+	if ! echo mem | sudo tee /sys/power/state 2>/tmp/pm_err; then
+		rtc_clear_alarm "$RTC"
 		warn "write to /sys/power/state failed: $(cat /tmp/pm_err)"
 		csv_append "$RESULTS" "$i,$MODE,$DUR,,,no,write-failed"
 		FAILED=1
@@ -184,12 +185,12 @@ while [ "$i" -le "$COUNT" ]; do
 
 	info "resumed after ${measured}s (drift ${drift}s)"
 
+	rtc_clear_alarm "$RTC"
+
 	restore
 
 	notes=""
 	ok=yes
-
-    info "Breakpoint 1"
 
 	# A cycle that returns almost instantly did not really suspend.
 	if [ "$measured" -lt $((DUR / 2)) ]; then
@@ -199,16 +200,12 @@ while [ "$i" -le "$COUNT" ]; do
 		FAILED=1
 	fi
 
-    info "Breakpoint 2"
-
 	slice=$(dmesg_since "$mark")
 	if ! dmesg_check_suspend "$slice"; then
 		ok=no
 		notes="${notes:+$notes;}dmesg-errors"
 		FAILED=1
 	fi
-
-    info "Breakpoint 3"
 
 	if echo "$slice" | grep -q 'PM: suspend entry'; then
 		info "kernel confirmed suspend entry"
@@ -217,13 +214,9 @@ while [ "$i" -le "$COUNT" ]; do
 		notes="${notes:+$notes;}no-entry-log"
 	fi
 
-    info "Breakpoint 4"
-
 	# Report which device took longest to suspend, if the kernel tells us.
 	echo "$slice" | grep -oE 'PM: [^ ]+ suspend of devices complete after [0-9.]+ msecs' \
 		| sed 's/^/  /'
-
-	rtc_clear_alarm "$RTC"
 
 	csv_append "$RESULTS" "$i,$MODE,$DUR,$measured,$drift,$ok,$notes"
 

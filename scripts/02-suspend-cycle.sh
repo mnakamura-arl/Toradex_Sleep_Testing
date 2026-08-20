@@ -171,6 +171,8 @@ while [ "$i" -le "$COUNT" ]; do
 	if ! echo mem | sudo tee /sys/power/state 2>/tmp/pm_err; then
 		rtc_clear_alarm "$RTC"
 		warn "write to /sys/power/state failed: $(cat /tmp/pm_err)"
+		warn "kernel messages during the attempt (the aborting device is usually named here):"
+		dmesg_since "$mark" | tail -n 40 | sed 's/^/       /' >&2
 		csv_append "$RESULTS" "$i,$MODE,$DUR,,,no,write-failed"
 		FAILED=1
 		restore

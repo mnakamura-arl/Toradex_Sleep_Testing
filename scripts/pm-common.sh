@@ -110,6 +110,12 @@ dmesg_since() {
 # Look for the usual suspend-abort culprits in a dmesg slice.
 dmesg_check_suspend() {
 	_slice="$1"
+	# PM_DMESG_IGNORE: egrep pattern of kernel lines to tolerate, for devices
+	# with known-benign PM errors (e.g. PM_DMESG_IGNORE='lt8912'). Ignored
+	# lines still appear in the full log; they just don't fail the cycle.
+	if [ -n "${PM_DMESG_IGNORE:-}" ]; then
+		_slice=$(echo "$_slice" | grep -vE "$PM_DMESG_IGNORE")
+	fi
 	_bad=0
 	for _pat in \
 		'PM: Some devices failed to suspend' \
@@ -134,7 +140,7 @@ dmesg_check_suspend() {
 first_eth() {
 	for i in /sys/class/net/*; do
 		_n=$(basename "$i")
-		case "$_n" in lo|docker*|veth*|br-*|wlan*) continue ;; esac
+		case "$_n" in lo|docker*|veth*|br-*|wlan*|can*|sit*|tun*|tap*) continue ;; esac
 		[ -e "$i/device" ] || continue
 		echo "$_n"; return 0
 	done

@@ -76,13 +76,15 @@ Every `run`/`baseline`/`report`/`collect` in the same shell uses this id.
 # Inventory (also proves ssh+sudo works end to end)
 ./tools/pm_run.sh run $DUT probe 'cd sleep_test/scripts && sudo ./01-probe.sh'
 
-# Single verified suspend
-./tools/pm_run.sh run $DUT suspend-60 \
-    'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
+# Single verified suspend. run-detached, NOT run: the DUT drops off the
+# network while asleep, and a plain ssh session would die in TCP timeout and
+# record a false failure (see todo/003). Last arg = timeout seconds.
+./tools/pm_run.sh run-detached $DUT suspend-60 \
+    'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60' 600
 
 # Suspend with peripherals torn down (minutes-mode candidate)
-./tools/pm_run.sh run $DUT suspend-torn \
-    'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 120 -n 3 -e -U'
+./tools/pm_run.sh run-detached $DUT suspend-torn \
+    'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 120 -n 3 -e -U' 1200
 
 # Runtime knobs A/B
 ./tools/pm_run.sh run $DUT tune-apply 'cd sleep_test/scripts && sudo ./05-runtime-tune.sh apply'
@@ -96,7 +98,8 @@ Every `run`/`baseline`/`report`/`collect` in the same shell uses this id.
 ./tools/pm_run.sh baseline powered-off 300
 
 # Overnight soak of the winning config (run under nohup/tmux)
-./tools/pm_run.sh run $DUT soak 'cd sleep_test/scripts && sudo ./06-soak.sh -n 300 -d 120 -a 15'
+./tools/pm_run.sh run-detached $DUT soak \
+    'cd sleep_test/scripts && sudo ./06-soak.sh -n 300 -d 120 -a 15' 54000
 ```
 
 For `04-ab-matrix.sh` (interactive; asks you to type mW readings): open a
@@ -137,6 +140,18 @@ Pull it back to your laptop/GCS:
 ```bash
 scp torizon@192.168.1.213:sleep_test/results-<RUN_ID>.tgz .
 ```
+
+## Tracking issues and results
+
+- Open items live in `todo/` — one numbered file per issue with status
+  (pending / in-progress / needs-retest / resolved) and a step-by-step plan;
+  `todo/README.md` is the index.
+- After reviewing a run, triage its `logs/<RUN_ID>/` dir into `logs/pending/`
+  (issue still open, link the todo item in a FINDINGS.md) or `logs/resolved/`
+  (confirmed result). See `logs/README.md`.
+- Known-benign kernel PM errors can be tolerated per-run with
+  `PM_DMESG_IGNORE='<egrep pattern>'` in the remote command, e.g.
+  `sudo PM_DMESG_IGNORE=lt8912 ./02-suspend-cycle.sh -d 60` (see todo/002).
 
 ## Troubleshooting
 

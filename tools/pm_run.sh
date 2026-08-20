@@ -21,7 +21,8 @@ cd "$(dirname "$0")/.."
 
 RUN_ID="${PM_RUN_ID:-$(date '+%Y%m%d')}"
 LOGDIR="logs/$RUN_ID"
-mkdir -p "$LOGDIR"
+# created lazily by olog/run/collect so read-only commands (report, watch,
+# usage) don't litter logs/ with empty run dirs
 
 usage() {
     cat <<'EOF'
@@ -30,6 +31,10 @@ usage: ./tools/pm_run.sh <command> [args]
   init                              create the pm_phases marker table (idempotent)
   push  user@dut                    copy scripts/ to the DUT ~/sleep_test/scripts
   run   user@dut LABEL 'REMOTE CMD' marker-wrapped ssh command, output logged
+  run-detached user@dut LABEL 'REMOTE CMD' [TIMEOUT_S]
+                                    like run, but survives the DUT dropping off
+                                    the network - USE THIS for suspend/poweroff/
+                                    soak phases (default timeout 900 s)
   baseline LABEL SECONDS            marker-wrapped hold, no DUT command
   report [RUN_ID]                   per-phase power/energy table
   watch [WINDOW_S]                  live rolling power readout (default 10 s)
@@ -44,6 +49,7 @@ EOF
 }
 
 olog() {  # timestamped line to console and orchestrator.log
+    mkdir -p "$LOGDIR"
     printf '%s  %s\n' "$(date '+%Y-%m-%dT%H:%M:%S')" "$*" | tee -a "$LOGDIR/orchestrator.log"
 }
 
@@ -106,6 +112,7 @@ cmd="${1:-}"; shift 2>/dev/null || true
 case "$cmd" in
 
 init)
+    mkdir -p "$LOGDIR"
     psql_exec -c "CREATE TABLE IF NOT EXISTS pm_phases (
         id SERIAL PRIMARY KEY,
         run_id TEXT NOT NULL,
@@ -120,9 +127,11 @@ init)
 
 push)
     DEST="${1:?usage: pm_run.sh push user@dut-ip}"
+    mkdir -p "$LOGDIR"
     {
         ssh "$DEST" 'mkdir -p sleep_test/scripts'
-        rsync -av --exclude '*Zone.Identifier*' scripts/ "$DEST:sleep_test/scripts/"
+        rsync -av --exclude '*Zone.Identifier*' --exclude '*.swp' --exclude '*.swo' \
+            scripts/ "$DEST:sleep_test/scripts/"
         ssh "$DEST" 'chmod +x sleep_test/scripts/*.sh'
     } 2>&1 | tee -a "$LOGDIR/orchestrator.log"
     olog "push: scripts pushed to $DEST:sleep_test/scripts"
@@ -142,6 +151,48 @@ run)
     phase_close "$id" "$rc"
     if [ "$rc" -eq 0 ]; then
         olog "run [$RUN_ID/$id] $LABEL done (exit 0), log: $PLOG"
+    else
+        err_note "$id" "$LABEL" "$rc" "$PLOG"
+    fi
+    ;;
+
+run-detached)
+    DEST="${1:?usage: pm_run.sh run-detached user@dut-ip LABEL 'REMOTE COMMAND' [TIMEOUT_S]}"
+    LABEL="${2:?missing LABEL}"
+    REMOTE="${3:?missing remote command}"
+    TIMEOUT="${4:-900}"
+    id=$(phase_open "$LABEL" "$REMOTE")
+    PLOG="$LOGDIR/phase-$id-$LABEL.log"
+    olog "run-detached [$RUN_ID/$id] $LABEL: $REMOTE (timeout ${TIMEOUT}s)"
+    # Stage the command as a script (quoting survives), launch it disowned on
+    # the DUT, and end the ssh session immediately: the phase then survives
+    # the DUT dropping its network during suspend or a poweroff-wake cycle.
+    printf '#!/bin/sh\n%s\n' "$REMOTE" > "$LOGDIR/.phase-$id-cmd.sh"
+    scp -q "$LOGDIR/.phase-$id-cmd.sh" "$DEST:/tmp/pm_cmd_$id.sh"
+    ssh "$DEST" "chmod +x /tmp/pm_cmd_$id.sh && nohup sh -c '/tmp/pm_cmd_$id.sh >/tmp/pm_out_$id.log 2>&1; echo \$? >/tmp/pm_rc_$id' >/dev/null 2>&1 </dev/null &"
+    # Poll for the exit-code file. Connection failures while the DUT is
+    # asleep or rebooting are expected and just mean "keep waiting", so the
+    # phase end is accurate to ~15 s (poll interval + reconnect detection).
+    rc=""
+    waited=0
+    while [ "$waited" -lt "$TIMEOUT" ]; do
+        sleep 10
+        waited=$((waited + 10))
+        rc=$(ssh -o ConnectTimeout=5 -o BatchMode=yes "$DEST" \
+            "cat /tmp/pm_rc_$id 2>/dev/null" 2>/dev/null || true)
+        if [ -n "$rc" ]; then break; fi
+    done
+    if [ -n "$rc" ]; then
+        ssh -o ConnectTimeout=5 "$DEST" \
+            "cat /tmp/pm_out_$id.log 2>/dev/null; rm -f /tmp/pm_cmd_$id.sh /tmp/pm_out_$id.log /tmp/pm_rc_$id" \
+            > "$PLOG" 2>/dev/null || true
+    else
+        rc=124
+        echo "(timed out after ${TIMEOUT}s waiting for the DUT to finish and come back)" > "$PLOG"
+    fi
+    phase_close "$id" "$rc"
+    if [ "$rc" -eq 0 ]; then
+        olog "run-detached [$RUN_ID/$id] $LABEL done (exit 0), log: $PLOG"
     else
         err_note "$id" "$LABEL" "$rc" "$PLOG"
     fi

@@ -24,8 +24,8 @@ tools/
 
 ## Two-stack test topology
 
-Two Toradex stacks: the **DUT** (Verdin + peripherals, `192.168.1.212`) runs
-the `scripts/` sleep tests; the **monitor** (`192.168.1.213`) runs this
+Two Toradex stacks: the **DUT** (Verdin + peripherals, `192.168.1.213`) runs
+the `scripts/` sleep tests; the **monitor** (`192.168.1.212`) runs this
 compose stack and measures the DUT. The INA228 shunt goes in series with the
 DUT's input supply (high side), grounds common, I2C to the monitor's
 `/dev/i2c-3` at `0x41`.
@@ -44,11 +44,11 @@ troubleshooting. Short version, on the monitor:
 ```bash
 cd ~/sleep_test
 export PM_RUN_ID=$(date +%Y%m%d-%H%M)
-./tools/pm_run.sh init && ./tools/pm_run.sh push torizon@192.168.1.212
-./tools/pm_run.sh run torizon@192.168.1.212 suspend-60 \
+./tools/pm_run.sh init && ./tools/pm_run.sh push torizon@192.168.1.213
+./tools/pm_run.sh run torizon@192.168.1.213 suspend-60 \
     'cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60'
 ./tools/pm_run.sh report
-./tools/pm_run.sh collect torizon@192.168.1.212   # -> results-<RUN_ID>.tgz
+./tools/pm_run.sh collect torizon@192.168.1.213   # -> results-<RUN_ID>.tgz
 ```
 
 Everything is logged under `logs/<RUN_ID>/` (orchestrator log, full remote

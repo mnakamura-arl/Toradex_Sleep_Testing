@@ -167,9 +167,12 @@ run-detached)
     # Stage the command as a script (quoting survives), launch it disowned on
     # the DUT, and end the ssh session immediately: the phase then survives
     # the DUT dropping its network during suspend or a poweroff-wake cycle.
+    # Staging lives under the DUT home dir, NOT /tmp: /tmp is tmpfs, and a
+    # crash-reboot mid-phase would silently destroy the output log.
     printf '#!/bin/sh\n%s\n' "$REMOTE" > "$LOGDIR/.phase-$id-cmd.sh"
-    scp -q "$LOGDIR/.phase-$id-cmd.sh" "$DEST:/tmp/pm_cmd_$id.sh"
-    ssh "$DEST" "chmod +x /tmp/pm_cmd_$id.sh && nohup sh -c '/tmp/pm_cmd_$id.sh >/tmp/pm_out_$id.log 2>&1; echo \$? >/tmp/pm_rc_$id' >/dev/null 2>&1 </dev/null &"
+    ssh "$DEST" 'mkdir -p .pmrun'
+    scp -q "$LOGDIR/.phase-$id-cmd.sh" "$DEST:.pmrun/cmd_$id.sh"
+    ssh "$DEST" "chmod +x .pmrun/cmd_$id.sh && nohup sh -c '\$HOME/.pmrun/cmd_$id.sh >\$HOME/.pmrun/out_$id.log 2>&1; echo \$? >\$HOME/.pmrun/rc_$id' >/dev/null 2>&1 </dev/null &"
     # Poll for the exit-code file. Connection failures while the DUT is
     # asleep or rebooting are expected and just mean "keep waiting", so the
     # phase end is accurate to ~15 s (poll interval + reconnect detection).
@@ -178,17 +181,27 @@ run-detached)
     while [ "$waited" -lt "$TIMEOUT" ]; do
         sleep 10
         waited=$((waited + 10))
-        rc=$(ssh -o ConnectTimeout=5 -o BatchMode=yes "$DEST" \
-            "cat /tmp/pm_rc_$id 2>/dev/null" 2>/dev/null || true)
+        # ServerAlive bounds a poll whose TCP session dies mid-flight (e.g.
+        # the DUT crashes after connect) — without it that ssh hangs forever.
+        rc=$(ssh -o ConnectTimeout=5 -o BatchMode=yes \
+                 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$DEST" \
+            "cat .pmrun/rc_$id 2>/dev/null" 2>/dev/null || true)
         if [ -n "$rc" ]; then break; fi
     done
     if [ -n "$rc" ]; then
-        ssh -o ConnectTimeout=5 "$DEST" \
-            "cat /tmp/pm_out_$id.log 2>/dev/null; rm -f /tmp/pm_cmd_$id.sh /tmp/pm_out_$id.log /tmp/pm_rc_$id" \
+        ssh -o ConnectTimeout=5 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$DEST" \
+            "cat .pmrun/out_$id.log 2>/dev/null; rm -f .pmrun/cmd_$id.sh .pmrun/out_$id.log .pmrun/rc_$id" \
             > "$PLOG" 2>/dev/null || true
     else
         rc=124
-        echo "(timed out after ${TIMEOUT}s waiting for the DUT to finish and come back)" > "$PLOG"
+        {
+            echo "(timed out after ${TIMEOUT}s waiting for the DUT to finish and come back)"
+            echo "(partial output recovered from the DUT, if reachable:)"
+            ssh -o ConnectTimeout=5 -o BatchMode=yes \
+                -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$DEST" \
+                "cat .pmrun/out_$id.log 2>/dev/null; uptime" 2>/dev/null \
+                || echo "(DUT unreachable)"
+        } > "$PLOG"
     fi
     phase_close "$id" "$rc"
     if [ "$rc" -eq 0 ]; then
@@ -262,11 +275,12 @@ collect)
     docker compose logs --no-color --timestamps postgres | tail -n 200 \
         > "$CDIR/postgres-service.log" 2>&1 || true
 
-    # 3. DUT-side logs: /var/log/pmtest (CSVs, soak logs) and /var/lib/pmtest
-    #    (poweroff-wake results recorded at next boot). Owned by root, so tar
-    #    runs under sudo -n; falls back to plain tar for permissive images.
+    # 3. DUT-side logs: /var/lib/pmtest (script CSVs/logs under log/, state,
+    #    poweroff-wake results recorded at next boot). /var/lib because
+    #    /var/log is volatile tmpfs on Torizon. Owned by root, so tar runs
+    #    under sudo -n; falls back to plain tar for permissive images.
     if [ -n "$DEST" ]; then
-        if ssh "$DEST" 'sudo -n tar -C /var -cz log/pmtest lib/pmtest 2>/dev/null || tar -C /var -cz log/pmtest lib/pmtest 2>/dev/null' \
+        if ssh "$DEST" 'sudo -n tar -C /var/lib -cz pmtest 2>/dev/null || tar -C /var/lib -cz pmtest 2>/dev/null' \
                 > "$CDIR/dut-pmtest.tgz" 2>>"$LOGDIR/orchestrator.log" \
                 && [ -s "$CDIR/dut-pmtest.tgz" ]; then
             olog "collect: DUT logs fetched"

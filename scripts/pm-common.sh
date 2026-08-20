@@ -4,7 +4,9 @@
 #
 # POSIX sh so it works on both Torizon OS and the Yocto reference images.
 
-PM_LOGDIR="${PM_LOGDIR:-/var/log/pmtest}"
+# /var/log is volatile tmpfs on Torizon (lost on reboot/crash); /var/lib
+# persists, so results survive even a failed-suspend hard reset.
+PM_LOGDIR="${PM_LOGDIR:-/var/lib/pmtest/log}"
 PM_STATEDIR="${PM_STATEDIR:-/var/lib/pmtest}"
 
 mkdir -p "$PM_LOGDIR" "$PM_STATEDIR" 2>/dev/null || true

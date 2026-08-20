@@ -1,7 +1,15 @@
 # 002 — LT8912B HDMI bridge aborts deep suspend (ETIMEDOUT)
 
-**Status:** pending
-**Evidence:** run `20260819-2036` (on 192.168.1.213): ~20 suspend attempts
+**Status:** resolved (2026-08-20) — superseded by todo/006. With the new
+dmesg diagnostics (run `20260820-0725`), the entry aborts turned out to be
+mwifiex (EFAULT) and xhci (ETIMEDOUT), not the LT8912B. The bridge's
+`lt8912_bridge_resume returns -6` is real but resume-only noise; tolerate it
+with `PM_DMESG_IGNORE=lt8912` or unbind/disable it for headless runs.
+Original notes kept below for the unbind/overlay procedures.
+
+**Original status:** pending
+**Evidence:** run `20260819-2036` (on 192.168.1.213 — the DUT, roles
+confirmed 2026-08-20): ~20 suspend attempts
 failed at the `/sys/power/state` write with `Connection timed out` (ETIMEDOUT,
 a device suspend callback timing out) and once `Device or resource busy`.
 Phase 24 — the one cycle that got through — slept 61 s cleanly and then logged:

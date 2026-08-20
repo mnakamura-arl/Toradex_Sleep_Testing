@@ -6,13 +6,13 @@ Topology:
 
 | Role    | Machine                     | IP            | Runs                                  |
 |---------|-----------------------------|---------------|---------------------------------------|
-| Monitor | Toradex stack with INA228   | 192.168.1.213 | this compose stack + `tools/pm_run.sh`|
-| DUT     | Verdin stack w/ peripherals | 192.168.1.212 | `scripts/` sleep tests (via ssh)      |
+| Monitor | Toradex stack with INA228   | 192.168.1.212 | this compose stack + `tools/pm_run.sh`|
+| DUT     | Verdin stack w/ peripherals | 192.168.1.213 | `scripts/` sleep tests (via ssh)      |
 
 The INA228 shunt is in series with the DUT's input supply (high side), grounds
 common, I2C to the monitor's `/dev/i2c-3` at address `0x41`.
 
-All commands below run **on the monitor (192.168.1.213)** from `~/sleep_test`
+All commands below run **on the monitor (192.168.1.212)** from `~/sleep_test`
 unless marked otherwise.
 
 ---
@@ -21,7 +21,7 @@ unless marked otherwise.
 
 ```bash
 cd ~/sleep_test
-DUT=torizon@192.168.1.212
+DUT=torizon@192.168.1.213
 ```
 
 1. Secrets and config: edit `secrets/db_user.txt`, `secrets/db_password.txt`,
@@ -138,7 +138,7 @@ This bundles `results-$PM_RUN_ID.tgz` containing:
 Pull it back to your laptop/GCS:
 
 ```bash
-scp torizon@192.168.1.213:sleep_test/results-<RUN_ID>.tgz .
+scp torizon@192.168.1.212:sleep_test/results-<RUN_ID>.tgz .
 ```
 
 ## Tracking issues and results

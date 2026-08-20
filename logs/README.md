@@ -23,6 +23,6 @@ Rules of thumb:
 | Run | Where | Why |
 |-----|-------|-----|
 | 20260819, -0009, -0031, -0037, -0041 | resolved | rehearsals that exposed the psql `INSERT 0 1` phase-id bug; fixed by the `-q` flag, verified clean in 1950+ |
-| 20260819-1950 | pending | DUT (.212) missing passwordless sudo → todo/001 |
+| 20260819-1950 | resolved | probe failed on .212 for lack of sudo — box roles were recorded swapped; .212 is the monitor and needs no sudo (todo/001, resolved 2026-08-20) |
 | 20260819-2004 | pending | ssh died during suspend, phase misrecorded → todo/003 (fix implemented, needs retest) |
-| 20260819-2036 | pending | LT8912B suspend aborts → todo/002; also drove todo/004 diagnostics. Phase 24 = proof deep suspend works (61 s, 1 s drift) |
+| 20260819-2036 | pending | LT8912B suspend aborts on the DUT (.213) → todo/002; also drove todo/004 diagnostics. Phase 24 = proof deep suspend works (61 s, 1 s drift) |

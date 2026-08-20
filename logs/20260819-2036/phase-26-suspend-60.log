@@ -1,0 +1,17 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : deep
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : can0
+  results     : /var/log/pmtest/suspend-20260819-225724.csv
+  mem_sleep   : deep
+
+===============================================================
+ Cycle 1/1
+===============================================================
+  armed rtc1 for +60s (epoch 4101)
+  entering deep ...
+  !! write to /sys/power/state failed: tee: /sys/power/state: Bad address

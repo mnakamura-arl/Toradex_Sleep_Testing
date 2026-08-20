@@ -1,0 +1,402 @@
+=== 2026-08-19T20:51:50  phase 6 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-205147.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1289)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T20:53:23  phase 7 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-205301.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1363)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Device or resource busy
+=== 2026-08-19T20:56:30  phase 8 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-205626.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1569)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T20:58:00  phase 9 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : s2idle
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-205737.csv
+      mem_sleep   : s2idle
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1640)
+      entering s2idle ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Device or resource busy
+=== 2026-08-19T21:17:23  phase 10 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-211719.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 2822)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T21:20:56  phase 11 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-211947.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 2970)
+      entering deep ...
+      resumed after 61s (drift 1s)
+           [ 1178.501863] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+      kernel confirmed suspend entry
+      !! dmesg: matched 'dpm_run_callback.*returns -'
+=== 2026-08-19T21:25:08  phase 12 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-212504.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 3287)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T21:45:58  phase 13 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-214555.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 4538)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T21:53:40  phase 14 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-215337.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 274)
+      entering deep ...
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T22:01:00  phase 15 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-220056.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 714)
+      entering deep ...
+    mem
+      !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out
+=== 2026-08-19T22:06:13  phase 16 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-220609.csv
+    deep
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+    +0
+      armed rtc1 for +60s (epoch 1027)
+      entering deep ...
+    +0
+      !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Connection timed out
+=== 2026-08-19T22:09:36  phase 17 (suspend-60) exit=1
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-220827.csv
+    deep
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+    +0
+      armed rtc1 for +60s (epoch 1164)
+      entering deep ...
+    mem
+      resumed after 60s (drift 0s)
+    +0
+           [  195.393046] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+      kernel confirmed suspend entry
+      !! dmesg: matched 'dpm_run_callback.*returns -'
+=== 2026-08-19T22:10:35  phase 18 (suspend-60) exit=1
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-221030.csv
+    deep
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+    +0
+      armed rtc1 for +60s (epoch 1289)
+      entering deep ...
+    mem
+    +0
+      !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out
+=== 2026-08-19T22:18:25  phase 19 (suspend-60) exit=1
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-221715.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1693)
+      entering deep ...
+    mem
+      resumed after 61s (drift 1s)
+           [  665.737917] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+      kernel confirmed suspend entry
+      !! dmesg: matched 'dpm_run_callback.*returns -'
+=== 2026-08-19T22:20:09  phase 20 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-222004.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1863)
+      entering deep ...
+    tee: /sys/power/state: Connection timed out
+      !! write to /sys/power/state failed: 
+=== 2026-08-19T22:21:55  phase 22 (suspend-60) exit=1
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-222044.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 1903)
+      entering deep ...
+    mem
+      resumed after 62s (drift 2s)
+           [  816.232536] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+      kernel confirmed suspend entry
+      !! dmesg: matched 'dpm_run_callback.*returns -'
+=== 2026-08-19T22:32:28  phase 23 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-223224.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 2602)
+      entering deep ...
+      !! write to /sys/power/state failed: 
+=== 2026-08-19T22:34:49  phase 24 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-223339.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 2677)
+      entering deep ...
+      resumed after 61s (drift 1s)
+           [ 1530.825268] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+      kernel confirmed suspend entry
+      !! dmesg: matched 'dpm_run_callback.*returns -'
+=== 2026-08-19T22:46:20  phase 25 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-224606.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 3424)
+      entering deep ...
+      !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out
+=== 2026-08-19T22:57:44  phase 26 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-225724.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 4101)
+      entering deep ...
+      !! write to /sys/power/state failed: tee: /sys/power/state: Bad address
+=== 2026-08-19T23:02:30  phase 27 (suspend-60) exit=1
+    
+    ===============================================================
+     Suspend cycle test
+    ===============================================================
+      mode        : deep
+      duration    : 60s x 1 cycle(s)
+      rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+      ethernet    : can0
+      results     : /var/log/pmtest/suspend-20260819-230226.csv
+      mem_sleep   : deep
+    
+    ===============================================================
+     Cycle 1/1
+    ===============================================================
+      armed rtc1 for +60s (epoch 4404)
+      entering deep ...
+    mem
+      !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out

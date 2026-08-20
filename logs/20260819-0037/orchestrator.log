@@ -1,0 +1,7 @@
+CREATE TABLE
+2026-08-19T00:41:06  init: pm_phases ready
+sending incremental file list
+
+sent 276 bytes  received 12 bytes  82.29 bytes/sec
+total size is 41,219  speedup is 143.12
+2026-08-19T00:41:21  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts

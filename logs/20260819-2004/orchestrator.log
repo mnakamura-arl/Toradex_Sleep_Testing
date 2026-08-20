@@ -1,0 +1,7 @@
+2026-08-19T20:04:27  baseline [20260819-2004/1] idle-baseline: holding 120s
+2026-08-19T20:06:27  TESTING
+2026-08-19T20:06:28  baseline [20260819-2004/1] idle-baseline done
+2026-08-19T20:08:07  run [20260819-2004/2] probe: cd sleep_test/scripts && sudo ./01-probe.sh
+2026-08-19T20:08:12  run [20260819-2004/2] probe done (exit 0), log: logs/20260819-2004/phase-2-probe.log
+2026-08-19T20:09:37  run [20260819-2004/3] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T20:17:06  !! phase 3 (suspend-60) FAILED exit=255 - see logs/20260819-2004/errors.log

@@ -1,0 +1,20 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : deep
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : can0
+  results     : /var/log/pmtest/suspend-20260819-211947.csv
+  mem_sleep   : deep
+
+===============================================================
+ Cycle 1/1
+===============================================================
+  armed rtc1 for +60s (epoch 2970)
+  entering deep ...
+  resumed after 61s (drift 1s)
+       [ 1178.501863] lt8912 3-0048: PM: dpm_run_callback(): lt8912_bridge_resume+0x0/0x80 [lontium_lt8912b] returns -6
+  kernel confirmed suspend entry
+  !! dmesg: matched 'dpm_run_callback.*returns -'

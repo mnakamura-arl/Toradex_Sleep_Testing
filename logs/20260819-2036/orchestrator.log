@@ -1,0 +1,121 @@
+2026-08-19T20:36:51  baseline [20260819-2036/4] idle-baseline: holding 120s
+2026-08-19T20:38:51  TESTING
+2026-08-19T20:38:51  baseline [20260819-2036/4] idle-baseline done
+2026-08-19T20:39:17  run [20260819-2036/5] probe: cd sleep_test/scripts && sudo ./01-probe.sh
+2026-08-19T20:39:22  run [20260819-2036/5] probe done (exit 0), log: logs/20260819-2036/phase-5-probe.log
+2026-08-19T20:51:46  run [20260819-2036/6] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T20:51:50  !! phase 6 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T20:53:00  run [20260819-2036/7] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T20:53:23  !! phase 7 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T20:56:25  run [20260819-2036/8] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T20:56:30  !! phase 8 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T20:57:37  run [20260819-2036/9] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -m s2idle
+2026-08-19T20:58:00  !! phase 9 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T21:17:20  run [20260819-2036/10] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T21:17:23  !! phase 10 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T21:19:49  run [20260819-2036/11] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T21:20:56  !! phase 11 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T21:25:06  run [20260819-2036/12] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T21:25:08  !! phase 12 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T21:45:56  run [20260819-2036/13] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T21:45:58  !! phase 13 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T21:53:38  run [20260819-2036/14] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T21:53:40  !! phase 14 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+.02-suspend-cycle.sh.swp
+02-suspend-cycle.sh
+
+sent 18,922 bytes  received 105 bytes  12,684.67 bytes/sec
+total size is 57,637  speedup is 3.03
+2026-08-19T22:00:42  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:00:58  run [20260819-2036/15] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:01:00  !! phase 15 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+.pm-common.sh.swp
+02-suspend-cycle.sh
+pm-common.sh
+
+sent 23,090 bytes  received 160 bytes  15,500.00 bytes/sec
+total size is 61,743  speedup is 2.66
+2026-08-19T22:06:06  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:06:11  run [20260819-2036/16] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:06:13  !! phase 16 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,073 bytes  received 86 bytes  2,318.00 bytes/sec
+total size is 41,272  speedup is 35.61
+2026-08-19T22:08:25  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:08:28  run [20260819-2036/17] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:09:36  !! phase 17 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T22:10:33  run [20260819-2036/18] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:10:35  !! phase 18 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+pm-common.sh
+
+sent 1,838 bytes  received 141 bytes  1,319.33 bytes/sec
+total size is 41,282  speedup is 20.86
+2026-08-19T22:17:14  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:17:17  run [20260819-2036/19] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:18:25  !! phase 19 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,062 bytes  received 86 bytes  2,296.00 bytes/sec
+total size is 41,279  speedup is 35.96
+2026-08-19T22:20:05  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:20:07  run [20260819-2036/20] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:20:09  !! phase 20 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T22:20:35  run [20260819-2036/21] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,066 bytes  received 86 bytes  768.00 bytes/sec
+total size is 41,280  speedup is 35.83
+2026-08-19T22:20:44  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:20:47  run [20260819-2036/22] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:21:55  !! phase 22 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,069 bytes  received 86 bytes  2,310.00 bytes/sec
+total size is 41,284  speedup is 35.74
+2026-08-19T22:32:23  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:32:26  run [20260819-2036/23] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:32:28  !! phase 23 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,072 bytes  received 86 bytes  772.00 bytes/sec
+total size is 41,293  speedup is 35.66
+2026-08-19T22:33:38  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:33:41  run [20260819-2036/24] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:34:49  !! phase 24 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+2026-08-19T22:46:08  run [20260819-2036/25] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:46:20  !! phase 25 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+
+sent 293 bytes  received 19 bytes  208.00 bytes/sec
+total size is 41,293  speedup is 132.35
+2026-08-19T22:57:21  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T22:57:25  run [20260819-2036/26] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T22:57:44  !! phase 26 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log
+sending incremental file list
+./
+02-suspend-cycle.sh
+
+sent 1,058 bytes  received 92 bytes  766.67 bytes/sec
+total size is 41,282  speedup is 35.90
+2026-08-19T23:02:24  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-19T23:02:28  run [20260819-2036/27] suspend-60: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60
+2026-08-19T23:02:30  !! phase 27 (suspend-60) FAILED exit=1 - see logs/20260819-2036/errors.log

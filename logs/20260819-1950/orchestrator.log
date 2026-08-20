@@ -1,0 +1,5 @@
+2026-08-19T19:51:07  baseline [20260819-1950/1] idle-baseline: holding 120s
+2026-08-19T19:53:07  TESTING
+2026-08-19T19:53:07  baseline [20260819-1950/1] idle-baseline done
+2026-08-19T19:53:53  run [20260819-1950/2] probe: cd sleep_test/scripts && sudo ./01-probe.sh
+2026-08-19T19:53:56  !! phase 2 (probe) FAILED exit=1 - see logs/20260819-1950/errors.log

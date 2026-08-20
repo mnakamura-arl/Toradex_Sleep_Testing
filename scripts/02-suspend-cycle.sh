@@ -189,6 +189,8 @@ while [ "$i" -le "$COUNT" ]; do
 	notes=""
 	ok=yes
 
+    info "Breakpoint 1"
+
 	# A cycle that returns almost instantly did not really suspend.
 	if [ "$measured" -lt $((DUR / 2)) ]; then
 		warn "woke far too early - something aborted the suspend"
@@ -197,6 +199,8 @@ while [ "$i" -le "$COUNT" ]; do
 		FAILED=1
 	fi
 
+    info "Breakpoint 2"
+
 	slice=$(dmesg_since "$mark")
 	if ! dmesg_check_suspend "$slice"; then
 		ok=no
@@ -204,12 +208,16 @@ while [ "$i" -le "$COUNT" ]; do
 		FAILED=1
 	fi
 
+    info "Breakpoint 3"
+
 	if echo "$slice" | grep -q 'PM: suspend entry'; then
 		info "kernel confirmed suspend entry"
 	else
 		warn "no 'PM: suspend entry' in dmesg"
 		notes="${notes:+$notes;}no-entry-log"
 	fi
+
+    info "Breakpoint 4"
 
 	# Report which device took longest to suspend, if the kernel tells us.
 	echo "$slice" | grep -oE 'PM: [^ ]+ suspend of devices complete after [0-9.]+ msecs' \

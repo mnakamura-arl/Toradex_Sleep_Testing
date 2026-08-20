@@ -1,0 +1,12 @@
+2026-08-19T00:09:14  baseline [20260819-0009/1
+INSERT 0 1] idle-baseline: holding 120s
+2026-08-19T00:17:19  baseline [20260819-0009/2
+INSERT 0 1] idle-baseline: holding 10s
+CREATE TABLE
+2026-08-19T00:31:10  init: pm_phases ready
+sending incremental file list
+./
+
+sent 283 bytes  received 19 bytes  86.29 bytes/sec
+total size is 41,219  speedup is 136.49
+2026-08-19T00:31:28  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts

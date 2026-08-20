@@ -1,0 +1,175 @@
+
+===============================================================
+ Module / BSP
+===============================================================
+  
+  Software summary
+  ------------------------------------------------------------
+  Bootloader:               U-Boot
+  Kernel version:           6.6.119-7.5.0-ge5c5595adb06 #1-Torizon SMP PREEMPT Mon Jan  5 09:23:13 UTC 2026
+  Kernel command line:      root=LABEL=otaroot rootfstype=ext4 quiet logo.nologo vt.global_cursor_default=0 plymouth.ignore-serial-consoles splash fbcon=map:3 ostree=/ostree/boot.1/torizon/ceef042c4639b31575cf244223c95d14aed3f5af31ae9850643e2adfd4dd0d95/0
+  Distro name:              NAME="Torizon OS"
+  Distro version:           VERSION_ID=7.5.0-build.30
+  Distro variant:           VARIANT="Docker"
+  Hostname:                 verdin-imx8mp-08862022
+  ------------------------------------------------------------
+  
+  Hardware info
+  ------------------------------------------------------------
+  HW model:                 Toradex Verdin iMX8M Plus WB on Verdin Development Board
+  Toradex version:          0070 V1.1A
+  Serial number:            08862022
+  Processor arch:           aarch64
+  ------------------------------------------------------------
+
+===============================================================
+ Sleep states
+===============================================================
+  /sys/power/state     : freeze mem
+  /sys/power/mem_sleep : s2idle [deep]
+  active mem_sleep     : deep
+  OK - suspend-to-RAM available
+
+===============================================================
+ RTCs
+===============================================================
+  rtc0   name=rtc-ds1307 0-0032wakealarm=NO
+  rtc1   name=snvs_rtc 30370000.snvs:snvs-rtc-lpwakealarm=yes armed=
+  
+  SNVS (SoC)      -> rtc1   [use this for suspend-to-RAM]
+  on-module Epson -> rtc0  [candidate for wake-from-poweroff]
+  hwclock         -> 2026-08-19 20:08:23.079890+00:00
+
+===============================================================
+ Registered wakeup sources (enabled only)
+===============================================================
+  /sys/class/power_supply/usb-charger-0
+  /sys/bus/platform/devices/30370000.snvs:snvs-powerkey
+  /sys/bus/platform/devices/30370000.snvs:snvs-rtc-lp
+  /sys/bus/platform/devices/alarmtimer.0.auto
+  /sys/bus/platform/devices/gpio-keys
+
+===============================================================
+ CTRL_SLEEP_MOCI# (SODIMM 256)
+===============================================================
+  libgpiod (gpioinfo) not installed - cannot check
+  Scope this pin during suspend: it should go LOW. If it stays high,
+  the Mallow peripheral rails never get gated.
+
+===============================================================
+ CPU
+===============================================================
+  online : 0-3
+  governor  : schedutil
+  available : conservative ondemand userspace powersave performance schedutil 
+  freqs kHz : 1200000 1600000 
+  current   : 1200000 kHz
+
+===============================================================
+ cpuidle states (residency tells you if deep idle is actually used)
+===============================================================
+  state0     WFI                    usage=2661589    time=71485293057 us
+  state1     cpu-pd-wait            usage=177        time=855787 us
+
+===============================================================
+ devfreq (DDR / bus scaling)
+===============================================================
+  no devfreq devices
+
+===============================================================
+ Network
+===============================================================
+  interface : can0
+  state     : down
+  
+  All net devices:
+    can0
+    can1
+    docker0
+    ethernet0
+    lo
+    mlan0
+    sit0
+    uap0
+
+===============================================================
+ USB
+===============================================================
+  /:  Bus 001.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 480M
+      |__ Port 001: Dev 002, If 0, Class=Hub, Driver=hub/4p, 480M
+          |__ Port 001: Dev 005, If 0, Class=Communications, Driver=cdc_acm, 12M
+          |__ Port 001: Dev 005, If 1, Class=CDC Data, Driver=cdc_acm, 12M
+          |__ Port 004: Dev 006, If 0, Class=Vendor Specific Class, Driver=[none], 480M
+  /:  Bus 002.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 5000M
+      |__ Port 001: Dev 002, If 0, Class=Hub, Driver=hub/3p, 5000M
+  /:  Bus 003.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 480M
+      |__ Port 001: Dev 002, If 0, Class=Audio, Driver=snd-usb-audio, 12M
+      |__ Port 001: Dev 002, If 1, Class=Audio, Driver=snd-usb-audio, 12M
+      |__ Port 001: Dev 002, If 2, Class=Audio, Driver=snd-usb-audio, 12M
+      |__ Port 001: Dev 002, If 3, Class=Human Interface Device, Driver=usbhid, 12M
+  /:  Bus 004.Port 001: Dev 001, Class=root_hub, Driver=xhci-hcd/1p, 5000M
+  
+  Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 001 Device 002: ID 0424:2744 Microchip Technology, Inc. (formerly SMSC) Hub
+  Bus 001 Device 005: ID 1546:01a9 U-Blox AG u-blox GNSS receiver
+  Bus 001 Device 006: ID 0424:2740 Microchip Technology, Inc. (formerly SMSC) Hub Controller
+  Bus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  Bus 002 Device 002: ID 0424:5744 Microchip Technology, Inc. (formerly SMSC) Hub
+  Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 003 Device 002: ID 0c76:153f JMTek, LLC. USB PnP Audio Device
+  Bus 004 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  
+  Per-device runtime PM:
+    1-1        control=auto   status=active  USB2744
+    1-1.1      control=on     status=active  u-blox GNSS receiver
+    1-1.4      control=on     status=active  Hub Controller
+    2-1        control=auto   status=suspended  USB5744
+    3-1        control=on     status=active  USB PnP Audio Device
+    usb1       control=auto   status=active  xHCI Host Controller
+    usb2       control=auto   status=suspended  xHCI Host Controller
+    usb3       control=auto   status=active  xHCI Host Controller
+    usb4       control=auto   status=suspended  xHCI Host Controller
+
+===============================================================
+ Sound cards (your USB mic should appear here)
+===============================================================
+   0 [audiohdmi      ]: audio-hdmi - audio-hdmi
+                        audio-hdmi
+   1 [LMU_1          ]: USB-Audio - USB PnP Audio Device
+                        USB PnP Audio Device at usb-xhci-hcd.2.auto-1, full speed
+
+===============================================================
+ PCIe / NVMe
+===============================================================
+  ASPM policy : [default] performance powersave powersupersave 
+  00:00.0 PCI bridge: Synopsys, Inc. DWC_usb3 / PCIe bridge (rev 01)
+  no NVMe device -> your SSD is USB-attached
+
+===============================================================
+ Block devices
+===============================================================
+  NAME          SIZE TYPE TRAN MOUNTPOINT
+  mmcblk2      29.1G disk mmc  
+  `-mmcblk2p1  29.1G part mmc  /sysroot
+  mmcblk2boot0    4M disk mmc  
+  mmcblk2boot1    4M disk mmc  
+  zram0           0B disk      
+
+===============================================================
+ Wi-Fi module (must be unloaded before deep suspend)
+===============================================================
+  mwifiex_sdio           40960  0
+  mwifiex               290816  1 mwifiex_sdio
+  cfg80211              942080  1 mwifiex
+  !! loaded - unload before suspending (see 02-suspend-cycle.sh -w)
+
+===============================================================
+ Thermal
+===============================================================
+  thermal_zone0 soc-thermal      31 C
+  thermal_zone1 cpu-thermal      32 C
+
+===============================================================
+ Done
+===============================================================
+  Saved to /var/log/pmtest/probe-20260819-200841.txt

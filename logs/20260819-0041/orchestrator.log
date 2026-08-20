@@ -1,0 +1,28 @@
+2026-08-19T00:41:32  baseline [20260819-0041/1
+INSERT 0 1] idle-baseline: holding 12s
+2026-08-19T01:00:20  baseline [20260819-0041/2
+INSERT 0 1] idle-baseline: holding 12s
+2026-08-19T01:00:32  TESTING
+2026-08-19T01:01:29  baseline [20260819-0041/3
+INSERT 0 1] idle-baseline: holding 12s
+2026-08-19T01:01:41  TESTING
+2026-08-19T01:03:22  baseline [20260819-0041/4
+INSERT 0 1] idle-baseline: holding 12s
+2026-08-19T01:03:34  TESTING
+2026-08-19T01:25:43  baseline [20260819-0041/5
+INSERT 0 1] idle-baseline: holding 12s
+2026-08-19T01:25:47  baseline [20260819-0041/6
+INSERT 0 1] idle-baseline: holding 2s
+2026-08-19T01:25:49  TESTING
+2026-08-19T01:27:44  baseline [20260819-0041/7
+INSERT 0 1] idle-baseline: holding 2s
+2026-08-19T01:27:46  TESTING
+2026-08-19T01:28:16  baseline [20260819-0041/8
+INSERT 0 1] idle-baseline: holding 2s
+2026-08-19T01:28:18  TESTING
+2026-08-19T01:30:45  baseline [20260819-0041/9
+INSERT 0 1] idle-baseline: holding 2s
+2026-08-19T01:30:47  TESTING
+2026-08-19T01:35:43  baseline [20260819-0041/10] idle-baseline: holding 2s
+2026-08-19T01:35:45  TESTING
+2026-08-19T01:35:46  baseline [20260819-0041/10] idle-baseline done

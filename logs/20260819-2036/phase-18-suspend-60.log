@@ -1,0 +1,21 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : deep
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : can0
+  results     : /var/log/pmtest/suspend-20260819-221030.csv
+deep
+  mem_sleep   : deep
+
+===============================================================
+ Cycle 1/1
+===============================================================
++0
+  armed rtc1 for +60s (epoch 1289)
+  entering deep ...
+mem
++0
+  !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out

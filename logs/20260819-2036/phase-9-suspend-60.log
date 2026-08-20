@@ -1,0 +1,17 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : s2idle
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : can0
+  results     : /var/log/pmtest/suspend-20260819-205737.csv
+  mem_sleep   : s2idle
+
+===============================================================
+ Cycle 1/1
+===============================================================
+  armed rtc1 for +60s (epoch 1640)
+  entering s2idle ...
+  !! write to /sys/power/state failed: ./02-suspend-cycle.sh: line 171: echo: write error: Device or resource busy

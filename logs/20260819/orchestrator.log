@@ -1,0 +1,30 @@
+CREATE TABLE
+2026-08-19T00:08:31  init: pm_phases ready
+sending incremental file list
+./
+01-probe.sh
+02-suspend-cycle.sh
+03-poweroff-wake.sh
+04-ab-matrix.sh
+05-runtime-tune.sh
+06-soak.sh
+README.md
+pm-common.sh
+
+sent 41,842 bytes  received 171 bytes  12,003.71 bytes/sec
+total size is 41,219  speedup is 0.98
+2026-08-19T00:08:50  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+CREATE TABLE
+2026-08-19T19:50:38  init: pm_phases ready
+sending incremental file list
+
+sent 276 bytes  received 12 bytes  115.20 bytes/sec
+total size is 41,219  speedup is 143.12
+2026-08-19T19:50:50  push: scripts pushed to torizon@192.168.1.212:sleep_test/scripts
+CREATE TABLE
+2026-08-19T20:04:11  init: pm_phases ready
+sending incremental file list
+
+sent 276 bytes  received 12 bytes  192.00 bytes/sec
+total size is 41,219  speedup is 143.12
+2026-08-19T20:04:18  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts

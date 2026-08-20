@@ -141,6 +141,51 @@ Pull it back to your laptop/GCS:
 scp torizon@192.168.1.212:sleep_test/results-<RUN_ID>.tgz .
 ```
 
+## 5. Handoff / disconnect recovery
+
+Any machine on the bench network can take over — all state lives on the two
+boxes, never on the laptop: test output and exit codes persist in
+`~/.pmrun/` on the DUT (survives reboots), samples and phase markers in
+postgres on the monitor, run logs in `~/sleep_test/logs/` on the monitor.
+
+**Taking over from a new machine:**
+
+```bash
+# 1. Get ssh access to the monitor (one-time; needs the torizon password):
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519   # if no key yet
+ssh-copy-id torizon@192.168.1.212
+ssh torizon@192.168.1.212 true                      # must work without prompting
+
+# 2. Reconcile anything orphaned by the dropped session:
+ssh torizon@192.168.1.212
+cd sleep_test
+./tools/pm_run.sh recover torizon@192.168.1.213     # closes open phases with real results
+./tools/pm_run.sh report <RUN_ID>
+
+# 3. Continue the campaign per section 2.
+```
+
+**Avoid needing recovery at all:** for anything longer than a single phase,
+run pm_run inside tmux ON the monitor, so your laptop's connection is not a
+single point of failure:
+
+```bash
+ssh torizon@192.168.1.212
+tmux new -s pmtest    # (later: tmux attach -t pmtest, from any machine)
+cd sleep_test && export PM_RUN_ID=... && ./tools/pm_run.sh run-detached ...
+```
+
+**Manual fallback** (if the monitor's tools/ predates `recover`): for an
+open phase N, the DUT holds `~/.pmrun/rc_N` (exit code; its mtime is the
+true end time) and `~/.pmrun/out_N.log` (full output). Copy the output into
+`logs/<RUN_ID>/phase-N-<label>.log` on the monitor and close the marker:
+
+```bash
+docker compose exec -T postgres psql -U "$(cat secrets/db_user.txt)" -d data \
+  -c "UPDATE pm_phases SET ended_at = to_timestamp(<rc-file-mtime-epoch>),
+      exit_code = <rc> WHERE id = <N>;"
+```
+
 ## Tracking issues and results
 
 - Open items live in `todo/` — one numbered file per issue with status

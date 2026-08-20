@@ -38,6 +38,11 @@ usage: ./tools/pm_run.sh <command> [args]
   baseline LABEL SECONDS            marker-wrapped hold, no DUT command
   report [RUN_ID]                   per-phase power/energy table
   watch [WINDOW_S]                  live rolling power readout (default 10 s)
+  recover user@dut                  reconcile phases orphaned by a dropped
+                                    orchestrator session: reads each open
+                                    phase's exit code + output from the DUT's
+                                    ~/.pmrun/ staging and closes the marker
+                                    with the real end time
   collect [user@dut] [RUN_ID]       bundle all logs + data -> results-<RUN_ID>.tgz
 
 Phases group under $PM_RUN_ID (default: today's date). Example:
@@ -241,6 +246,35 @@ watch)
             FROM ina228_data
             WHERE timestamp > now() - make_interval(secs => $WIN);"
         sleep 2
+    done
+    ;;
+
+recover)
+    DEST="${1:?usage: pm_run.sh recover user@dut-ip}"
+    open=$(psql_exec -tA -F'|' -c "SELECT id, run_id, label FROM pm_phases
+        WHERE ended_at IS NULL ORDER BY id;")
+    [ -n "$open" ] || { echo "recover: no open phases"; exit 0; }
+    echo "$open" | while IFS='|' read -r id rid label; do
+        RUN_ID="$rid"; LOGDIR="logs/$rid"   # log under the phase's own run
+        res=$(ssh -o ConnectTimeout=5 -o BatchMode=yes \
+                  -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$DEST" \
+            "cat .pmrun/rc_$id 2>/dev/null && stat -c %Y .pmrun/rc_$id 2>/dev/null" \
+            2>/dev/null || true)
+        rc=$(echo "$res" | sed -n 1p)
+        endts=$(echo "$res" | sed -n 2p)
+        if [ -z "$rc" ]; then
+            olog "recover: phase $id ($label) has no result on the DUT - still running, crashed, or was a plain 'run'; leaving open"
+            continue
+        fi
+        mkdir -p "$LOGDIR"
+        PLOG="$LOGDIR/phase-$id-$label.log"
+        ssh -o ConnectTimeout=5 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$DEST" \
+            "cat .pmrun/out_$id.log 2>/dev/null; rm -f .pmrun/cmd_$id.sh .pmrun/out_$id.log .pmrun/rc_$id" \
+            > "$PLOG" 2>/dev/null || true
+        psql_exec -q -c "UPDATE pm_phases SET
+            ended_at = to_timestamp(${endts:-EXTRACT(EPOCH FROM now())}),
+            exit_code = $rc WHERE id = $id;"
+        olog "recover: phase $id ($label) closed with exit $rc (true end from DUT file time), log: $PLOG"
     done
     ;;
 

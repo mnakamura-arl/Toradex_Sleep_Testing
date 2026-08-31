@@ -20,4 +20,5 @@ Roles (confirmed 2026-08-20): monitor/INA = 192.168.1.212, DUT = 192.168.1.213.
 | [003](003-detached-suspend-orchestration.md) | ssh dies when the DUT suspends — detached phase orchestration | resolved (verified + hardened in 20260820-0725) |
 | [004](004-suspend-script-diagnostics.md) | Script diagnostics: dmesg dump on abort, can0-as-ethernet, .swp push | resolved (verified in 20260820-0725) |
 | [005](005-deploy-monitor-stack.md) | Deploy the compose stack to the monitor (192.168.1.212) | resolved (2026-08-20) |
-| [006](006-deep-suspend-blockers.md) | Deep suspend blockers: mwifiex, xhci; hard reboot with -w -U | pending |
+| [006](006-deep-suspend-blockers.md) | Deep suspend blockers: mwifiex, xhci; hard reboots are watchdog resets on a hung suspend | pending |
+| [007](007-ina228-bus-voltage-sense.md) | INA228 bus-voltage channel dead — all power numbers invalid (real rail 11.9 V) | pending |

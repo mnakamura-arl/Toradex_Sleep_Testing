@@ -42,33 +42,97 @@ The LT8912B (todo/002) turned out to be resume-noise, not the entry abort.
   DUT input rail (min_mw 73.7; true_avg 504.5 mW over the 83 s marker window
   including awake overhead).
 
-**Working recipe:** leave mwifiex loaded (fresh firmware state — a reboot or
-possibly a module reload resets it), mic unplugged/gated, lt8912 unbound,
-`echo mem` plain deep. NEVER rmmod mwifiex before deep.
-5-cycle reliability test in flight (phase 39).
+**Working recipe (RETRACTED — see below):** leave mwifiex loaded (fresh
+firmware state), mic unplugged/gated, lt8912 unbound, `echo mem` plain deep.
+NEVER rmmod mwifiex before deep. 5-cycle reliability test in flight
+(phase 39).
 
-## Next steps (bench work — needs physical access)
+## 2026-08-31 — phase 39 recovered; the reboots are WATCHDOG resets
 
-Tried 2026-08-20 and ruled out: s2idle `-w` (same xhci abort, phase 32);
-deep `-w` with xhci-hcd.2.auto unbound (reboot, phase 33). Two hard reboots
-is enough remote iteration — stop until there is a serial console.
+Phase 39 never completed: the orchestrator session dropped, and `recover`
+correctly left it open because the DUT wrote no exit code. Its staged
+`out_39.log` ends mid-cycle-1 at `entering deep ... mem`, and its results CSV
+has only a header. **Phase 39 was reboot #4.**
 
-1. Serial console on the DUT with `no_console_suspend` on the kernel cmdline,
-   then repeat `-d 60 -w`: the console will show whether it dies going down,
-   asleep (watchdog?), or on the resume path.
-2. Watchdog check first — cheapest theory to kill: is a watchdog daemon
-   holding /dev/watchdog (`sudo lsof /dev/watchdog*`, `wdctl`)? A 60 s wdog
-   that isn't paused in suspend exactly matches "dies during a 60 s sleep".
-   Yesterday's 61 s success with Wi-Fi loaded weakens this — but confirm.
-3. Try deep WITHOUT `-w` but with the mic's controller unbound only
-   (mwifiex stays loaded — its suspend succeeded once in 2036/24):
-   `echo xhci-hcd.2.auto > .../unbind` then `-d 60` plain. If mwifiex
-   suspends clean this run, deep may work with Wi-Fi left alone.
-4. Scope CTRL_SLEEP_MOCI# (SODIMM 256) during entry — if carrier rails gate
-   wrongly the module can brown out (scripts/README.md notes this signal).
-5. Longer term: pstore/ramoops for crash evidence that survives reset.
+Two things follow.
+
+### 1. Phase 38's recipe is not reliable
+
+Phase 39 ran the identical config and command (only `-n 5` added) 11 minutes
+later and died on cycle 1. The phase-38 pass was one sample, not a recipe.
+What distinguishes them is that 38 was the *first* deep entry after boot and
+39 followed 38's resume — i.e. the resume path plausibly leaves state that
+wedges the next entry (cf. the `_regulator_put` refcount WARNs). Consistent
+with 20260819-2036/24, which was also a first successful entry.
+
+### 2. The hard reboots are the i.MX watchdog firing on a hung suspend
+
+Confirmed on the DUT 2026-08-31:
+
+```
+/sys/class/watchdog/watchdog0:  identity=imx2+ watchdog  state=active  timeout=30
+PID 1 (systemd) holds /dev/watchdog0;  RuntimeWatchdogUSec=30s
+```
+
+`imx2_wdt`'s suspend hook re-arms the watchdog to `IMX2_WDT_MAX_TIME` = 128 s
+before going down. A successful suspend resumes inside that budget and the
+watchdog never fires — which is why 24 and 38 passed. A **hung** suspend is
+never pinged again and gets reset at ~128 s, silently, with no panic and no
+log. That is precisely why four reboots left zero evidence.
+
+The INA current trace proves it — both crash phases plateau dead-flat and
+then reset ~128 s later:
+
+| Phase | Enters hung state | Reset / boot rise | Interval |
+|-------|-------------------|-------------------|----------|
+| 37 (`-w`) | 18:40:30 @ ~195 mA | 18:42:39 | ~129 s |
+| 39 (`-n 5`) | 19:01:14 @ ~207 mA | 19:03:20 | ~126 s |
+
+**The watchdog is not the root cause — it is why the root cause is
+invisible.** The real bug is whatever hangs the suspend path. The hung state
+draws ~205 mA (~2.4 W): partway down, peripherals gated, SoC never reached
+deep. A real deep suspend draws ~25 mA.
+
+### 3. All power figures above are wrong — see todo/007
+
+The INA228 bus-voltage channel is dead (real rail is 11.9 V by multimeter;
+the sensor logged 2.3–5.8 V and now ~0.96 V). The current channel is healthy.
+Corrected: awake idle **~3.75 W**, **deep floor ~300 mW** (not 74 mW),
+hung-suspend ~2.4 W, resume inrush ~5.0 W.
+
+## Next steps
+
+1. **Disable the watchdog before any further suspend testing** — it is an
+   active confound that destroys evidence and costs a reboot per failure:
+
+   ```bash
+   sudo mkdir -p /etc/systemd/system.conf.d
+   printf '[Manager]\nRuntimeWatchdogSec=0\n' | \
+       sudo tee /etc/systemd/system.conf.d/no-watchdog.conf
+   sudo systemctl daemon-reexec
+   cat /sys/class/watchdog/watchdog0/state    # expect: inactive
+   ```
+
+   A hung suspend then stays hung at ~2.4 W instead of resetting, which is
+   both cheaper to observe and far more informative. Revert by deleting the
+   drop-in. (Reboots are self-recovering either way — the board has come
+   back on its own all four times.)
+2. Then re-run the phase-38/39 pair back-to-back with the watchdog off:
+   first deep entry after boot, then a second. If #1's hypothesis holds, the
+   second hangs — and now it hangs *visibly*.
+3. Serial console with `no_console_suspend` to see where it wedges. Now that
+   the failure is a known hang rather than a mystery reset, this is the step
+   that identifies the offending device callback.
+4. Fix todo/007 (VBUS sense) so the phase power numbers mean something.
+5. Still untried: scope CTRL_SLEEP_MOCI# (SODIMM 256) during entry;
+   pstore/ramoops (less urgent now — a watchdog reset would not have written
+   a pstore record anyway, which is consistent with finding none).
+
+Ruled out 2026-08-20: s2idle `-w` (xhci abort, phase 32); deep `-w` with
+xhci-hcd.2.auto unbound (phase 33); `ip link set down` on mlan0/uap0 (36).
 
 ## Done when
 
 5 consecutive deep (or accepted-fallback s2idle) cycles pass with the chosen
-device teardown, with power numbers in the report.
+device teardown, with power numbers in the report that come from a working
+voltage channel.

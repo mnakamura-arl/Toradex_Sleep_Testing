@@ -18,7 +18,14 @@ Rules of thumb:
   the top level, so move the dir only once the results bundle exists (or
   re-point collect at the new path by hand).
 
-## Current state (2026-08-19)
+## Current state (2026-08-31)
+
+| Run | Where | Why |
+|-----|-------|-----|
+| 20260820-0725 | pending | first run with dmesg diagnostics; exposed mwifiex/xhci entry aborts and reboots #1-2 → todo/006 |
+| 20260820-bench | pending | bench session: phase 38 passed one deep cycle, phase 39 hung → watchdog reset (#4). Proved the reboots are 128 s watchdog resets on a hung suspend, and that the INA bus-voltage channel is dead → todo/006, todo/007. See its FINDINGS.md |
+
+## Earlier state (2026-08-19)
 
 | Run | Where | Why |
 |-----|-------|-----|

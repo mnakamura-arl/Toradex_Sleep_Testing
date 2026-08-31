@@ -1,0 +1,10 @@
+2026-08-20T18:33:48  run-detached [20260820-bench/34] deep-60-plain: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 (timeout 240s)
+2026-08-20T18:34:19  !! phase 34 (deep-60-plain) FAILED exit=1 - see logs/20260820-bench/errors.log
+2026-08-20T18:37:32  run-detached [20260820-bench/35] deep-60-nomic: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 (timeout 240s)
+2026-08-20T18:38:09  !! phase 35 (deep-60-nomic) FAILED exit=1 - see logs/20260820-bench/errors.log
+2026-08-20T18:39:07  run-detached [20260820-bench/36] deep-60-ifdown: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 (timeout 240s)
+2026-08-20T18:39:42  !! phase 36 (deep-60-ifdown) FAILED exit=1 - see logs/20260820-bench/errors.log
+2026-08-20T18:40:25  run-detached [20260820-bench/37] deep-60-nomic-rmmod: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -w (timeout 240s)
+2026-08-20T18:49:33  run-detached [20260820-bench/38] deep-60-freshfw: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 (timeout 240s)
+2026-08-20T18:50:57  run-detached [20260820-bench/38] deep-60-freshfw done (exit 0), log: logs/20260820-bench/phase-38-deep-60-freshfw.log
+2026-08-20T19:01:09  run-detached [20260820-bench/39] deep-60x5: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -n 5 (timeout 600s)

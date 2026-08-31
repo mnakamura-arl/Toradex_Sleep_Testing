@@ -1,0 +1,63 @@
+=== 2026-08-20T17:26:59  phase 29 (suspend-60-nolt8912) exit=1
+           [69447.202016] mwifiex_sdio mmc0:0001:1: PM: failed to suspend async: error -14
+           [69447.202053] PM: Some devices failed to suspend, or early wake event detected
+           [69447.202130] imx-dwmac 30bf0000.ethernet ethernet0: configuring for phy/rgmii-id link mode
+           [69447.211927] imx-dwmac 30bf0000.ethernet ethernet0: No Safety Features support found
+           [69447.211949] imx-dwmac 30bf0000.ethernet ethernet0: IEEE 1588-2008 Advanced Timestamp supported
+           [69447.212091] imx-dwmac 30bf0000.ethernet ethernet0: FPE workqueue start
+           [69447.213046] usb-conn-gpio 38100000.usb:connector: repeated role: host
+           [69447.213260] xhci-hcd xhci-hcd.2.auto: xHC error in resume, USBSTS 0x401, Reinit
+           [69447.213270] usb usb3: root hub lost power or was reset
+           [69447.213275] usb usb4: root hub lost power or was reset
+           [69447.551833] usb 1-1: reset high-speed USB device number 2 using xhci-hcd
+           [69448.001603] usb 2-1: reset SuperSpeed USB device number 2 using xhci-hcd
+           [69448.151467] usb 1-1.1: reset full-speed USB device number 3 using xhci-hcd
+           [69448.381336] usb 1-1.4: reset high-speed USB device number 4 using xhci-hcd
+           [69448.538058] OOM killer enabled.
+           [69448.538066] Restarting tasks ... 
+           [69448.538178] usb 3-1: USB disconnect, device number 7
+           [69448.538997] done.
+           [69448.539107] random: crng reseeded on system resumption
+           [69448.540175] PM: suspend exit
+=== 2026-08-20T17:27:51  phase 30 (suspend-60-nowifi) exit=1
+      !! kernel messages during the attempt (the aborting device is usually named here):
+           [69505.550548] PM: suspend entry (deep)
+           [69505.554875] Filesystems sync: 0.004 seconds
+           [69505.555766] Freezing user space processes
+           [69505.557423] Freezing user space processes completed (elapsed 0.001 seconds)
+           [69505.557438] OOM killer disabled.
+           [69505.557442] Freezing remaining freezable tasks
+           [69505.558708] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+           [69505.558717] printk: Suspending console(s) (use no_console_suspend to debug)
+           [69505.673477] xhci-hcd xhci-hcd.2.auto: WARN: xHC CMD_RUN timeout
+           [69505.673564] xhci-hcd xhci-hcd.2.auto: PM: dpm_run_callback(): platform_pm_suspend+0x0/0x6c returns -110
+           [69505.673583] xhci-hcd xhci-hcd.2.auto: PM: failed to suspend async: error -110
+           [69505.762659] PM: Some devices failed to suspend, or early wake event detected
+           [69505.762776] usb-conn-gpio 38100000.usb:connector: repeated role: host
+           [69505.762864] hub 3-0:1.0: hub_ext_port_status failed (err = -108)
+           [69505.762878] usb usb3-port1: cannot disable (err = -108)
+           [69505.989159] OOM killer enabled.
+           [69505.989168] Restarting tasks ... done.
+           [69505.990080] random: crng reseeded on system resumption
+           [69505.990201] PM: suspend exit
+=== 2026-08-20T17:42:05  phase 32 (suspend-60-s2idle) exit=1
+      !! kernel messages during the attempt (the aborting device is usually named here):
+           [  596.188302] PM: suspend entry (s2idle)
+           [  596.190059] Filesystems sync: 0.001 seconds
+           [  596.192872] Freezing user space processes
+           [  596.195339] Freezing user space processes completed (elapsed 0.002 seconds)
+           [  596.195358] OOM killer disabled.
+           [  596.195362] Freezing remaining freezable tasks
+           [  596.196776] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+           [  596.196785] printk: Suspending console(s) (use no_console_suspend to debug)
+           [  596.331345] xhci-hcd xhci-hcd.2.auto: WARN: xHC CMD_RUN timeout
+           [  596.331384] xhci-hcd xhci-hcd.2.auto: PM: dpm_run_callback(): platform_pm_suspend+0x0/0x6c returns -110
+           [  596.331403] xhci-hcd xhci-hcd.2.auto: PM: failed to suspend async: error -110
+           [  596.430534] PM: Some devices failed to suspend, or early wake event detected
+           [  596.430583] usb-conn-gpio 38100000.usb:connector: repeated role: host
+           [  596.430629] hub 3-0:1.0: hub_ext_port_status failed (err = -108)
+           [  596.430644] usb usb3-port1: cannot disable (err = -108)
+           [  596.657053] OOM killer enabled.
+           [  596.657061] Restarting tasks ... done.
+           [  596.659107] random: crng reseeded on system resumption
+           [  596.659242] PM: suspend exit

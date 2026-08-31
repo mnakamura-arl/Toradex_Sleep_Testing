@@ -1,0 +1,39 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : s2idle
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : ethernet0
+  results     : /var/lib/pmtest/log/suspend-20260820-174146.csv
+  mem_sleep   : s2idle
+
+===============================================================
+ Cycle 1/1
+===============================================================
+  unloading mwifiex_sdio
+  armed rtc1 for +60s (epoch 71561)
+  entering s2idle ...
+mem
+  !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out
+  !! kernel messages during the attempt (the aborting device is usually named here):
+       [  596.188302] PM: suspend entry (s2idle)
+       [  596.190059] Filesystems sync: 0.001 seconds
+       [  596.192872] Freezing user space processes
+       [  596.195339] Freezing user space processes completed (elapsed 0.002 seconds)
+       [  596.195358] OOM killer disabled.
+       [  596.195362] Freezing remaining freezable tasks
+       [  596.196776] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+       [  596.196785] printk: Suspending console(s) (use no_console_suspend to debug)
+       [  596.331345] xhci-hcd xhci-hcd.2.auto: WARN: xHC CMD_RUN timeout
+       [  596.331384] xhci-hcd xhci-hcd.2.auto: PM: dpm_run_callback(): platform_pm_suspend+0x0/0x6c returns -110
+       [  596.331403] xhci-hcd xhci-hcd.2.auto: PM: failed to suspend async: error -110
+       [  596.430534] PM: Some devices failed to suspend, or early wake event detected
+       [  596.430583] usb-conn-gpio 38100000.usb:connector: repeated role: host
+       [  596.430629] hub 3-0:1.0: hub_ext_port_status failed (err = -108)
+       [  596.430644] usb usb3-port1: cannot disable (err = -108)
+       [  596.657053] OOM killer enabled.
+       [  596.657061] Restarting tasks ... done.
+       [  596.659107] random: crng reseeded on system resumption
+       [  596.659242] PM: suspend exit

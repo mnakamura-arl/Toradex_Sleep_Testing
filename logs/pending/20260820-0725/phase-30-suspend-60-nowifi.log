@@ -1,0 +1,39 @@
+
+===============================================================
+ Suspend cycle test
+===============================================================
+  mode        : deep
+  duration    : 60s x 1 cycle(s)
+  rtc         : rtc1 (snvs_rtc 30370000.snvs:snvs-rtc-lp)
+  ethernet    : ethernet0
+  results     : /var/log/pmtest/suspend-20260820-172807.csv
+  mem_sleep   : deep
+
+===============================================================
+ Cycle 1/1
+===============================================================
+  unloading mwifiex_sdio
+  armed rtc1 for +60s (epoch 70708)
+  entering deep ...
+mem
+  !! write to /sys/power/state failed: tee: /sys/power/state: Connection timed out
+  !! kernel messages during the attempt (the aborting device is usually named here):
+       [69505.550548] PM: suspend entry (deep)
+       [69505.554875] Filesystems sync: 0.004 seconds
+       [69505.555766] Freezing user space processes
+       [69505.557423] Freezing user space processes completed (elapsed 0.001 seconds)
+       [69505.557438] OOM killer disabled.
+       [69505.557442] Freezing remaining freezable tasks
+       [69505.558708] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+       [69505.558717] printk: Suspending console(s) (use no_console_suspend to debug)
+       [69505.673477] xhci-hcd xhci-hcd.2.auto: WARN: xHC CMD_RUN timeout
+       [69505.673564] xhci-hcd xhci-hcd.2.auto: PM: dpm_run_callback(): platform_pm_suspend+0x0/0x6c returns -110
+       [69505.673583] xhci-hcd xhci-hcd.2.auto: PM: failed to suspend async: error -110
+       [69505.762659] PM: Some devices failed to suspend, or early wake event detected
+       [69505.762776] usb-conn-gpio 38100000.usb:connector: repeated role: host
+       [69505.762864] hub 3-0:1.0: hub_ext_port_status failed (err = -108)
+       [69505.762878] usb usb3-port1: cannot disable (err = -108)
+       [69505.989159] OOM killer enabled.
+       [69505.989168] Restarting tasks ... done.
+       [69505.990080] random: crng reseeded on system resumption
+       [69505.990201] PM: suspend exit

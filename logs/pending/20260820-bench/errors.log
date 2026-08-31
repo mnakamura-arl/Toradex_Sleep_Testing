@@ -1,0 +1,63 @@
+=== 2026-08-20T18:34:19  phase 34 (deep-60-plain) exit=1
+           [ 2892.998270] Freezing user space processes completed (elapsed 0.002 seconds)
+           [ 2892.998290] OOM killer disabled.
+           [ 2892.998294] Freezing remaining freezable tasks
+           [ 2892.999752] Freezing remaining freezable tasks completed (elapsed 0.001 seconds)
+           [ 2892.999761] printk: Suspending console(s) (use no_console_suspend to debug)
+           [ 2893.153955] xhci-hcd xhci-hcd.2.auto: WARN: xHC CMD_RUN timeout
+           [ 2893.154092] xhci-hcd xhci-hcd.2.auto: PM: dpm_run_callback(): platform_pm_suspend+0x0/0x6c returns -110
+           [ 2893.154121] xhci-hcd xhci-hcd.2.auto: PM: failed to suspend async: error -110
+           [ 2903.789905] mwifiex_sdio mmc0:0001:1: hs_activate_wait_q terminated
+           [ 2903.789918] mwifiex_sdio mmc0:0001:1: cmd: failed to suspend
+           [ 2903.789923] mwifiex_sdio mmc0:0001:1: PM: dpm_run_callback(): pm_generic_suspend+0x0/0x44 returns -14
+           [ 2903.789944] mwifiex_sdio mmc0:0001:1: PM: failed to suspend async: error -14
+           [ 2903.789975] PM: Some devices failed to suspend, or early wake event detected
+           [ 2903.790150] usb-conn-gpio 38100000.usb:connector: repeated role: host
+           [ 2903.790573] hub 3-0:1.0: hub_ext_port_status failed (err = -108)
+           [ 2903.790588] usb usb3-port1: cannot disable (err = -108)
+           [ 2904.032783] OOM killer enabled.
+           [ 2904.032794] Restarting tasks ... done.
+           [ 2904.034965] random: crng reseeded on system resumption
+           [ 2904.035240] PM: suspend exit
+=== 2026-08-20T18:38:09  phase 35 (deep-60-nomic) exit=1
+           [ 3119.190967] imx-dwmac 30bf0000.ethernet ethernet0: FPE workqueue stop
+           [ 3129.069585] mwifiex_sdio mmc0:0001:1: hs_activate_wait_q terminated
+           [ 3129.069598] mwifiex_sdio mmc0:0001:1: cmd: failed to suspend
+           [ 3129.069602] mwifiex_sdio mmc0:0001:1: PM: dpm_run_callback(): pm_generic_suspend+0x0/0x44 returns -14
+           [ 3129.069625] mwifiex_sdio mmc0:0001:1: PM: failed to suspend async: error -14
+           [ 3129.069664] PM: Some devices failed to suspend, or early wake event detected
+           [ 3129.069743] imx-dwmac 30bf0000.ethernet ethernet0: configuring for phy/rgmii-id link mode
+           [ 3129.079621] imx-dwmac 30bf0000.ethernet ethernet0: No Safety Features support found
+           [ 3129.079645] imx-dwmac 30bf0000.ethernet ethernet0: IEEE 1588-2008 Advanced Timestamp supported
+           [ 3129.079818] imx-dwmac 30bf0000.ethernet ethernet0: FPE workqueue start
+           [ 3129.080870] usb-conn-gpio 38100000.usb:connector: repeated role: device
+           [ 3129.419673] usb 1-1: reset high-speed USB device number 2 using xhci-hcd
+           [ 3129.869678] usb 2-1: reset SuperSpeed USB device number 2 using xhci-hcd
+           [ 3130.029601] usb 1-1.4: reset high-speed USB device number 6 using xhci-hcd
+           [ 3130.259595] usb 1-1.1: reset full-speed USB device number 5 using xhci-hcd
+           [ 3130.425036] pps pps1: removed
+           [ 3130.450151] OOM killer enabled.
+           [ 3130.450159] Restarting tasks ... done.
+           [ 3130.459655] random: crng reseeded on system resumption
+           [ 3130.460003] PM: suspend exit
+=== 2026-08-20T18:39:42  phase 36 (deep-60-ifdown) exit=1
+           [ 3211.580214] imx-dwmac 30bf0000.ethernet ethernet0: Link is Down
+           [ 3211.580928] imx-dwmac 30bf0000.ethernet ethernet0: FPE workqueue stop
+           [ 3221.869588] mwifiex_sdio mmc0:0001:1: hs_activate_wait_q terminated
+           [ 3221.869603] mwifiex_sdio mmc0:0001:1: cmd: failed to suspend
+           [ 3221.869607] mwifiex_sdio mmc0:0001:1: PM: dpm_run_callback(): pm_generic_suspend+0x0/0x44 returns -14
+           [ 3221.869630] mwifiex_sdio mmc0:0001:1: PM: failed to suspend async: error -14
+           [ 3221.869674] PM: Some devices failed to suspend, or early wake event detected
+           [ 3221.869753] imx-dwmac 30bf0000.ethernet ethernet0: configuring for phy/rgmii-id link mode
+           [ 3221.879627] imx-dwmac 30bf0000.ethernet ethernet0: No Safety Features support found
+           [ 3221.879650] imx-dwmac 30bf0000.ethernet ethernet0: IEEE 1588-2008 Advanced Timestamp supported
+           [ 3221.879799] imx-dwmac 30bf0000.ethernet ethernet0: FPE workqueue start
+           [ 3221.880846] usb-conn-gpio 38100000.usb:connector: repeated role: device
+           [ 3222.219670] usb 1-1: reset high-speed USB device number 2 using xhci-hcd
+           [ 3222.669669] usb 2-1: reset SuperSpeed USB device number 2 using xhci-hcd
+           [ 3222.819596] usb 1-1.4: reset high-speed USB device number 6 using xhci-hcd
+           [ 3223.049599] usb 1-1.1: reset full-speed USB device number 5 using xhci-hcd
+           [ 3223.250137] OOM killer enabled.
+           [ 3223.250145] Restarting tasks ... done.
+           [ 3223.259701] random: crng reseeded on system resumption
+           [ 3223.259809] PM: suspend exit

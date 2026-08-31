@@ -1,0 +1,26 @@
+CREATE TABLE
+2026-08-20T17:25:12  init: pm_phases ready
+sending incremental file list
+./
+01-probe.sh
+02-suspend-cycle.sh
+03-poweroff-wake.sh
+04-ab-matrix.sh
+05-runtime-tune.sh
+06-soak.sh
+README.md
+pm-common.sh
+
+sent 4,120 bytes  received 537 bytes  1,862.80 bytes/sec
+total size is 41,741  speedup is 8.96
+2026-08-20T17:25:18  push: scripts pushed to torizon@192.168.1.213:sleep_test/scripts
+2026-08-20T17:25:19  run [20260820-0725/28] probe: cd sleep_test/scripts && sudo ./01-probe.sh
+2026-08-20T17:25:23  run [20260820-0725/28] probe done (exit 0), log: logs/20260820-0725/phase-28-probe.log
+2026-08-20T17:26:23  run-detached [20260820-0725/29] suspend-60-nolt8912: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 (timeout 300s)
+2026-08-20T17:26:59  !! phase 29 (suspend-60-nolt8912) FAILED exit=1 - see logs/20260820-0725/errors.log
+2026-08-20T17:27:33  run-detached [20260820-0725/30] suspend-60-nowifi: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -w (timeout 300s)
+2026-08-20T17:27:51  !! phase 30 (suspend-60-nowifi) FAILED exit=1 - see logs/20260820-0725/errors.log
+2026-08-20T17:28:21  run-detached [20260820-0725/31] suspend-60-teardown: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -w -U (timeout 300s)
+2026-08-20T17:41:44  run-detached [20260820-0725/32] suspend-60-s2idle: cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -m s2idle -w (timeout 240s)
+2026-08-20T17:42:05  !! phase 32 (suspend-60-s2idle) FAILED exit=1 - see logs/20260820-0725/errors.log
+2026-08-20T17:43:18  run-detached [20260820-0725/33] suspend-60-noxhci2: echo xhci-hcd.2.auto | sudo tee /sys/bus/platform/drivers/xhci-hcd/unbind; cd sleep_test/scripts && sudo ./02-suspend-cycle.sh -d 60 -w; rc=$?; echo xhci-hcd.2.auto | sudo tee /sys/bus/platform/drivers/xhci-hcd/bind; exit $rc (timeout 240s)

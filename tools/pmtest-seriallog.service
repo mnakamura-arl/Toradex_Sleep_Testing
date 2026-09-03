@@ -1,0 +1,21 @@
+[Unit]
+Description=DUT serial console logger (FTDI on /dev/ttyUSB0)
+Documentation=file:/home/torizon/sleep_test/tools/seriallog.sh
+# NOT ordered After=multi-user.target. This board has no internet, so
+# systemd-timesyncd never syncs and systemd-time-wait-sync stays "activating"
+# indefinitely, leaving multi-user.target permanently inactive. Anything
+# ordered after that target never starts - which silently killed this logger
+# across a reboot on 2026-09-03. WantedBy is fine; the ordering was the bug.
+After=basic.target
+Wants=basic.target
+
+[Service]
+Type=simple
+ExecStart=/home/torizon/sleep_test/tools/seriallog.sh /dev/ttyUSB0 /home/torizon/sleep_test/logs/serial-console.log
+Restart=always
+RestartSec=5
+User=torizon
+Group=dialout
+
+[Install]
+WantedBy=multi-user.target

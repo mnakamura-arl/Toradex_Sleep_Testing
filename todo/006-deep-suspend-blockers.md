@@ -1,6 +1,14 @@
-# 006 — Deep suspend blockers: mwifiex, xhci; hard reboot with -w -U
+# 006 — Deep suspend blockers: root cause was the wrong carrier device tree
 
-**Status:** pending
+**Status:** RESOLVED 2026-08-31 — the DUT was booting the Verdin Development
+Board device tree on Mallow hardware. With the correct
+`imx8mp-verdin-wifi-mallow.dtb`, deep suspend went from ~25% reliable to
+**5/5 clean cycles** (run `20260831-mallow` phase 47, exit 0, no reset), and
+the sleep floor dropped from 995 mW to **262 mW**. See the 2026-08-31 section
+below. Everything above it is the investigation that led there, kept for the
+record — several of its conclusions are retracted.
+
+**Original status:** pending
 **Evidence:** run `20260820-0725` phases 29-31 (first run with the dmesg-dump
 diagnostics; lt8912 unbound throughout):
 
@@ -100,7 +108,118 @@ the sensor logged 2.3–5.8 V and now ~0.96 V). The current channel is healthy.
 Corrected: awake idle **~3.75 W**, **deep floor ~300 mW** (not 74 mW),
 hung-suspend ~2.4 W, resume inrush ~5.0 W.
 
-## Next steps
+## 2026-08-31 — ROOT CAUSE FOUND: wrong carrier device tree
+
+The DUT is a Verdin iMX8M Plus on a **Mallow** carrier, but it was booting the
+**Verdin Development Board** device tree. U-Boot could not identify the
+carrier from its EEPROM —
+
+```
+Carrier: Toradex UNKNOWN CARRIER BOARD V1.1C, Serial# 12938720
+```
+
+— so it fell back to `fdt_board=dev` / `fdtfile=imx8mp-verdin-wifi-dev.dtb`,
+and nobody ever corrected it. On top of that, `overlays.txt` was loading
+`verdin-imx8mp_hdmi_overlay.dtbo` and `verdin-imx8mp_dsi-to-hdmi_overlay.dtbo`
+for display hardware Mallow does not have — that is where the `lt8912` bridge
+kept coming from, and why unbinding it never stuck across a reboot.
+
+The result was four drivers bound to absent hardware, each carrying
+suspend/resume callbacks:
+
+```
+pca953x 3-0021: failed writing register            <- GPIO expander, dev board only
+ina2xx 3-0040: error configuring the device: -6    <- ENXIO, no such device
+nau8822 3-001a: Failed to issue reset: -6          <- audio codec, absent
+imx_sec_dsim_drv: Failed to attach bridge: -517    <- DSI bridge, absent
+```
+
+### The fix
+
+```bash
+sudo fw_setenv fdt_board mallow
+sudo fw_setenv fdtfile imx8mp-verdin-wifi-mallow.dtb
+# and in <ostree deploy>/dtb/overlays.txt, drop the hdmi + dsi-to-hdmi overlays:
+fdt_overlays=verdin-imx8mp_spidev_overlay.dtbo verdin-imx8mp_gnss-pps-gpio.dtbo
+```
+
+`imx8mp-verdin-wifi-mallow.dtb` was already present on the device — it simply
+was not being selected. After reboot the model reads
+`Toradex Verdin iMX8M Plus WB on Mallow Board`, compatible
+`toradex,verdin-imx8mp-wifi-mallow`, and all four phantom-device errors are
+gone.
+
+### Results
+
+Phase 46, `deep -d 60`, first attempt after the DTB change: **exit 0**, and
+the sleep floor collapsed:
+
+| | Current | Power | |
+|---|---------|-------|---|
+| Deep sleep, wrong DTB (phase 42) | 84.5 mA | 995 mW | |
+| Deep sleep, **Mallow DTB** (phase 46) | **22.7 mA** | **266 mW** | **3.7x better** |
+
+That also explains the long-standing 84 mA vs 25.8 mA puzzle between
+2026-08-31 and 2026-08-20 — it was never a measurement artifact, it was how
+many phantom devices happened to be powered.
+
+Awake draw dropped too, ~325 mA -> ~222 mA.
+
+### Confirmed: 5 consecutive cycles (phase 47, `deep -d 60 -n 5`)
+
+`exit 0`, DUT never rebooted, every cycle clean:
+
+```
+cycle,mode,requested_s,measured_s,drift_s,resume_ok,notes
+1,deep,60,61,1,yes,
+2,deep,60,61,1,yes,
+3,deep,60,61,1,yes,
+4,deep,60,61,1,yes,
+5,deep,60,61,1,yes,
+```
+
+Measured over the whole run (280 sleep samples / 426 awake samples):
+
+| State | Current | Voltage | **Power** |
+|-------|---------|---------|-----------|
+| Deep sleep | 22.31 mA | 11.750 V | **262 mW** (225–295) |
+| Awake idle | 222.15 mA | 11.75 V | **2.59 W** |
+
+**~9.9x saving asleep.** This closes the "Done when" criterion below.
+
+Before/after the DTB fix, same board, same script:
+
+| | Reliability | Sleep floor | Awake |
+|---|---|---|---|
+| Dev-board DTB | 1 of 4 attempts | 995 mW | 3.9 W |
+| **Mallow DTB** | **6 of 6** | **262 mW** | **2.59 W** |
+
+**Retired hypotheses.** The mwifiex `hs_activate` aborts, the xhci
+ETIMEDOUTs, and the `lt8912` resume error were all downstream of the wrong
+device tree, not independent bugs. The "never rmmod mwifiex" rule and the
+"fresh post-boot firmware" recipe were both noise fitted to a flaky system.
+
+## Serial console (for future debugging)
+
+Mallow has no onboard USB-serial. The debug UART is on **X11** (0.1" header,
+right of the ethernet jack, needs a header soldered) at **1.8 V** levels —
+use the FTDI **TTL-232RG-VREG1V8-WE**; a 3.3 V adapter is over-voltage.
+
+Wiring: cable black->GND, orange (TXD)->X11 UART3_RX, yellow (RXD)->X11
+UART3_TX. Leave red/brown/green unconnected.
+
+U-Boot's console is already `serial@30880000` = i.MX UART3 = `ttymxc2` =
+`verdin-uart3` at 115200, and the kernel console follows the device tree's
+`stdout-path` to the same port — so **no `console=` kernel argument is
+needed**; a login prompt appears on it out of the box.
+
+Loose end: `no_console_suspend` was added to
+`/boot/loader/entries/ostree-1.conf` but does **not** reach `/proc/cmdline`
+after reboot — Torizon appears to source kernel args from the `aboot.cfg`
+referenced in that entry instead. Needs solving before the console can log
+the inside of a suspend.
+
+## Older next steps (mostly superseded by the DTB fix)
 
 1. **Disable the watchdog before any further suspend testing** — it is an
    active confound that destroys evidence and costs a reboot per failure:

@@ -1,0 +1,27 @@
+[Unit]
+Description=PM deep-suspend soak test (wall-clock aligned, 15 min)
+Documentation=file:/home/torizon/sleep_test/scripts/06-soak.sh
+# NOT ordered After=multi-user.target. This board has no internet, so
+# systemd-timesyncd never syncs and systemd-time-wait-sync stays "activating"
+# indefinitely, which leaves multi-user.target permanently inactive. Anything
+# ordered after that target never runs. WantedBy is still multi-user.target so
+# it is pulled in at boot - that works, the ordering is what did not.
+After=basic.target network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStartPre=-/bin/sh -c 'dmesg -n 8'
+ExecStartPre=-/bin/sh -c 'echo 1 > /sys/power/pm_debug_messages'
+# -F 5: abort after 5 consecutive failures. On 2026-09-01 a wedged mwifiex
+# made every suspend fail in ~11 s and the run burned 39 h at 2.9 W unnoticed.
+# On abort the script latches /var/lib/pmtest/STOP so this unit will not
+# relaunch into the same wedge - clearing that file is a deliberate act.
+ExecStart=/home/torizon/sleep_test/scripts/06-soak.sh -n 0 -A 900 -a 60 -F 5
+Restart=on-failure
+RestartSec=60
+StandardOutput=append:/var/lib/pmtest/log/soak-service.log
+StandardError=append:/var/lib/pmtest/log/soak-service.log
+
+[Install]
+WantedBy=multi-user.target

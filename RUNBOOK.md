@@ -6,13 +6,13 @@ Topology:
 
 | Role    | Machine                     | IP            | Runs                                  |
 |---------|-----------------------------|---------------|---------------------------------------|
-| Monitor | Toradex stack with INA228   | 192.168.77.212 | this compose stack + `tools/pm_run.sh`|
-| DUT     | Verdin stack w/ peripherals | 192.168.77.213 | `scripts/` sleep tests (via ssh)      |
+| Monitor | Toradex stack with INA228   | 192.168.77.211 | this compose stack + `tools/pm_run.sh`|
+| DUT     | Verdin stack w/ peripherals | 192.168.77.212 | `scripts/` sleep tests (via ssh)      |
 
 The INA228 shunt is in series with the DUT's input supply (high side), grounds
 common, I2C to the monitor's `/dev/i2c-3` at address `0x41`.
 
-All commands below run **on the monitor (192.168.77.212)** from `~/sleep_test`
+All commands below run **on the monitor (192.168.77.211)** from `~/sleep_test`
 unless marked otherwise.
 
 ---
@@ -21,7 +21,7 @@ unless marked otherwise.
 
 ```bash
 cd ~/sleep_test
-DUT=torizon@192.168.77.213
+DUT=torizon@192.168.77.212
 ```
 
 1. Secrets and config: edit `secrets/db_user.txt`, `secrets/db_password.txt`,
@@ -138,7 +138,7 @@ This bundles `results-$PM_RUN_ID.tgz` containing:
 Pull it back to your laptop/GCS:
 
 ```bash
-scp torizon@192.168.77.212:sleep_test/results-<RUN_ID>.tgz .
+scp torizon@192.168.77.211:sleep_test/results-<RUN_ID>.tgz .
 ```
 
 ## 5. Handoff / disconnect recovery
@@ -153,13 +153,13 @@ postgres on the monitor, run logs in `~/sleep_test/logs/` on the monitor.
 ```bash
 # 1. Get ssh access to the monitor (one-time; needs the torizon password):
 ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519   # if no key yet
-ssh-copy-id torizon@192.168.77.212
-ssh torizon@192.168.77.212 true                      # must work without prompting
+ssh-copy-id torizon@192.168.77.211
+ssh torizon@192.168.77.211 true                      # must work without prompting
 
 # 2. Reconcile anything orphaned by the dropped session:
-ssh torizon@192.168.77.212
+ssh torizon@192.168.77.211
 cd sleep_test
-./tools/pm_run.sh recover torizon@192.168.77.213     # closes open phases with real results
+./tools/pm_run.sh recover torizon@192.168.77.212     # closes open phases with real results
 ./tools/pm_run.sh report <RUN_ID>
 
 # 3. Continue the campaign per section 2.
@@ -170,7 +170,7 @@ run pm_run inside tmux ON the monitor, so your laptop's connection is not a
 single point of failure:
 
 ```bash
-ssh torizon@192.168.77.212
+ssh torizon@192.168.77.211
 tmux new -s pmtest    # (later: tmux attach -t pmtest, from any machine)
 cd sleep_test && export PM_RUN_ID=... && ./tools/pm_run.sh run-detached ...
 ```

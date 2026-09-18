@@ -1,3 +1,7 @@
 # image tarballs from pull_deploy_images.sh - build output, often hundreds of MB
 *.tgz
 results-*.tgz
+
+# database dumps - large, and data not source
+backups/
+*.sql.gz

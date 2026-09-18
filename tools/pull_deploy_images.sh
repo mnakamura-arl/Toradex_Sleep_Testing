@@ -17,7 +17,7 @@
 # to an explicit space-separated list and discovery is skipped:
 #
 #   PM_IMAGES="postgres:17 grafana/loki:main-9dd14ba" \
-#       ./tools/pull_deploy_images.sh torizon@192.168.77.213 lilipad_images.tgz
+#       ./tools/pull_deploy_images.sh torizon@192.168.77.212 lilipad_images.tgz
 #
 # PM_NO_RESTORE=1 skips re-pulling host-platform tags afterwards - halves the
 # data pulled, which matters on a metered link.

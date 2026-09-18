@@ -18,6 +18,12 @@
 #   -U        unbind ALL non-root-hub USB devices
 #   -w        unload the Wi-Fi module before sleep, reload after
 #   -W        arm Wake-on-LAN (magic packet) as a second wake source
+#   -X        external-wake mode: expect something else (e.g. the Cortex-M7
+#             ringing the MU doorbell) to wake the board. The RTC alarm at
+#             -d SECS becomes a FAILSAFE, not the intended wake source, so
+#             the pass criterion inverts: waking EARLY is success, sleeping
+#             the full duration means the external wake never arrived.
+#             Keep -d under ~110 s or imx2_wdt resets the board first.
 #   -N        detach NVMe / put USB storage to sleep first
 #   -k        keep going after a failed cycle
 #   -h        help
@@ -36,11 +42,12 @@ USB_ALL=0
 DO_WIFI=0
 DO_WOL=0
 DO_STORAGE=0
+EXTWAKE=0
 KEEP=0
 
 usage() { sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0; }
 
-while getopts 'd:n:m:r:eu:UwWNkh' opt; do
+while getopts 'd:n:m:r:eu:UwWNXkh' opt; do
 	case "$opt" in
 		d) DUR=$OPTARG ;;
 		n) COUNT=$OPTARG ;;
@@ -52,6 +59,7 @@ while getopts 'd:n:m:r:eu:UwWNkh' opt; do
 		w) DO_WIFI=1 ;;
 		W) DO_WOL=1 ;;
 		N) DO_STORAGE=1 ;;
+		X) EXTWAKE=1 ;;
 		k) KEEP=1 ;;
 		h|*) usage ;;
 	esac
@@ -141,7 +149,12 @@ trap 'restore' EXIT INT TERM
 hdr "Suspend cycle test"
 info "mode        : $MODE"
 info "duration    : ${DUR}s x $COUNT cycle(s)"
-info "rtc         : $RTC ($(rtc_name "$RTC"))"
+if [ "$EXTWAKE" -eq 1 ]; then
+	info "rtc         : $RTC ($(rtc_name "$RTC")) - FAILSAFE only, not the wake source"
+	info "wake source : external (expecting the M7 doorbell)"
+else
+	info "rtc         : $RTC ($(rtc_name "$RTC"))"
+fi
 info "ethernet    : ${ETH:-none}$([ "$DO_ETH" -eq 1 ] && echo ' (down before sleep)')"
 info "results     : $RESULTS"
 
@@ -194,8 +207,26 @@ while [ "$i" -le "$COUNT" ]; do
 	notes=""
 	ok=yes
 
+	if [ "$EXTWAKE" -eq 1 ]; then
+		# The RTC is only the failsafe here, so the test inverts: an early
+		# wake is the external source doing its job. Still reject a wake so
+		# fast the board cannot really have suspended.
+		if [ "$measured" -lt 3 ]; then
+			warn "returned in ${measured}s - the suspend was aborted, not woken"
+			ok=no
+			notes="early-abort"
+			FAILED=1
+		elif [ "$measured" -lt $((DUR - 2)) ]; then
+			info "external wake at ${measured}s (failsafe was ${DUR}s)"
+			notes="ext-wake@${measured}s"
+		else
+			warn "slept the full ${DUR}s - the RTC failsafe fired, no external wake"
+			ok=no
+			notes="no-ext-wake"
+			FAILED=1
+		fi
 	# A cycle that returns almost instantly did not really suspend.
-	if [ "$measured" -lt $((DUR / 2)) ]; then
+	elif [ "$measured" -lt $((DUR / 2)) ]; then
 		warn "woke far too early - something aborted the suspend"
 		ok=no
 		notes="early-wake"

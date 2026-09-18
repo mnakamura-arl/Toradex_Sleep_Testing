@@ -194,9 +194,15 @@ Before/after the DTB fix, same board, same script:
 | Dev-board DTB | 1 of 4 attempts | 995 mW | 3.9 W |
 | **Mallow DTB** | **6 of 6** | **262 mW** | **2.59 W** |
 
-**Retired hypotheses.** The mwifiex `hs_activate` aborts, the xhci
-ETIMEDOUTs, and the `lt8912` resume error were all downstream of the wrong
-device tree, not independent bugs. The "never rmmod mwifiex" rule and the
+**Retired hypotheses — PARTLY RETRACTED (2026-09-03).** The `lt8912` resume
+error was indeed downstream of the wrong device tree. The other two were not:
+
+- mwifiex `hs_activate` is a separate real defect — see todo/008.
+- **the xhci ETIMEDOUTs are a separate real defect** — see todo/009. They
+  reproduce whenever the USB mic is attached, and were only absent from
+  post-DTB testing because the mic was unplugged throughout.
+
+What the DTB fix genuinely resolved was the *hangs and watchdog resets*. The "never rmmod mwifiex" rule and the
 "fresh post-boot firmware" recipe were both noise fitted to a flaky system.
 
 ## Serial console (for future debugging)

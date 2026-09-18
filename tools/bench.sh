@@ -13,7 +13,7 @@
 #   AWAKE_S  awake gap between cycles     (default 15, only used when COUNT>1)
 #
 # Env:
-#   PM_DUT       DUT ssh target   (default torizon@192.168.77.213)
+#   PM_DUT       DUT ssh target   (default torizon@192.168.77.212)
 #   PM_RUN_ID    run id           (default YYYYmmdd-HHMM)
 #   PM_TICK      live readout interval in seconds (default 5)
 #
@@ -29,7 +29,7 @@ MODE="${1:-deep}"
 DUR="${2:-60}"
 COUNT="${3:-1}"
 AWAKE="${4:-15}"
-DUT="${PM_DUT:-torizon@192.168.77.213}"
+DUT="${PM_DUT:-torizon@192.168.77.212}"
 TICK="${PM_TICK:-5}"
 export PM_RUN_ID="${PM_RUN_ID:-$(date +%Y%m%d-%H%M)}"
 
